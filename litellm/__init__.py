@@ -572,6 +572,7 @@ docker_model_runner_models: Set = set()
 amazon_nova_models: Set = set()
 stability_models: Set = set()
 github_copilot_models: Set = set()
+chatgpt_models: Set = set()
 minimax_models: Set = set()
 aws_polly_models: Set = set()
 gigachat_models: Set = set()
@@ -827,6 +828,8 @@ def add_known_models():
             stability_models.add(key)
         elif value.get("litellm_provider") == "github_copilot":
             github_copilot_models.add(key)
+        elif value.get("litellm_provider") == "chatgpt":
+            chatgpt_models.add(key)
         elif value.get("litellm_provider") == "minimax":
             minimax_models.add(key)
         elif value.get("litellm_provider") == "aws_polly":
@@ -1040,6 +1043,7 @@ models_by_provider: dict = {
     "amazon_nova": amazon_nova_models,
     "stability": stability_models,
     "github_copilot": github_copilot_models,
+    "chatgpt": chatgpt_models,
     "minimax": minimax_models,
     "aws_polly": aws_polly_models,
     "gigachat": gigachat_models,
@@ -1389,6 +1393,7 @@ if TYPE_CHECKING:
     from .llms.azure.responses.o_series_transformation import AzureOpenAIOSeriesResponsesAPIConfig as AzureOpenAIOSeriesResponsesAPIConfig
     from .llms.xai.responses.transformation import XAIResponsesAPIConfig as XAIResponsesAPIConfig
     from .llms.litellm_proxy.responses.transformation import LiteLLMProxyResponsesAPIConfig as LiteLLMProxyResponsesAPIConfig
+    from .llms.volcengine.responses.transformation import VolcEngineResponsesAPIConfig as VolcEngineResponsesAPIConfig
     from .llms.manus.responses.transformation import ManusResponsesAPIConfig as ManusResponsesAPIConfig
     from .llms.gemini.interactions.transformation import GoogleAIStudioInteractionsConfig as GoogleAIStudioInteractionsConfig
     from .llms.openai.chat.o_series_transformation import OpenAIOSeriesConfig as OpenAIOSeriesConfig, OpenAIOSeriesConfig as OpenAIO1Config
@@ -1473,6 +1478,8 @@ if TYPE_CHECKING:
     from .llms.github_copilot.chat.transformation import GithubCopilotConfig as GithubCopilotConfig
     from .llms.github_copilot.responses.transformation import GithubCopilotResponsesAPIConfig as GithubCopilotResponsesAPIConfig
     from .llms.github_copilot.embedding.transformation import GithubCopilotEmbeddingConfig as GithubCopilotEmbeddingConfig
+    from .llms.chatgpt.chat.transformation import ChatGPTConfig as ChatGPTConfig
+    from .llms.chatgpt.responses.transformation import ChatGPTResponsesAPIConfig as ChatGPTResponsesAPIConfig
     from .llms.gigachat.chat.transformation import GigaChatConfig as GigaChatConfig
     from .llms.gigachat.embedding.transformation import GigaChatEmbeddingConfig as GigaChatEmbeddingConfig
     from .llms.nebius.chat.transformation import NebiusConfig as NebiusConfig

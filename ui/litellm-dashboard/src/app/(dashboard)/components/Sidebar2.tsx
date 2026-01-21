@@ -25,7 +25,7 @@ import {
 //   rolesWithWriteAccess,
 //   internalUserRoles,
 //   isAdminRole,
-// } from "../utils/roles";
+//   } from "../utils/roles";
 // import UsageIndicator from "./usage_indicator";
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -120,6 +120,8 @@ const routeFor = (slug: string): string => {
       return "experimental/api-playground";
     case "tag-management":
       return "experimental/tag-management";
+    case "claude-code-plugins":
+      return "experimental/claude-code-plugins";
     case "usage": // "Old Usage"
       return "experimental/old-usage";
 
@@ -148,69 +150,69 @@ const toHref = (slugOrPath: string) => {
 
 // ----- Menu config (unchanged labels/icons; same appearance) -----
 const menuItems: MenuItemCfg[] = [
-  { key: "1", page: "api-keys", label: "Виртуальные ключи", icon: <KeyOutlined style={{ fontSize: 18 }} /> },
+  { key: "1", page: "api-keys", label: "Virtual Keys", icon: <KeyOutlined style={{ fontSize: 18 }} /> },
   {
     key: "3",
     page: "llm-playground",
-    label: "Тестовый ключ",
+    label: "Test Key",
     icon: <PlayCircleOutlined style={{ fontSize: 18 }} />,
     roles: rolesWithWriteAccess,
   },
   {
     key: "2",
     page: "models",
-    label: "Модели и конечные точки",
+    label: "Models + Endpoints",
     icon: <BlockOutlined style={{ fontSize: 18 }} />,
     roles: rolesWithWriteAccess,
   },
   {
     key: "12",
     page: "new_usage",
-    label: "Использование",
+    label: "Usage",
     icon: <BarChartOutlined style={{ fontSize: 18 }} />,
     roles: [...all_admin_roles, ...internalUserRoles],
   },
-  { key: "6", page: "teams", label: "Команды", icon: <TeamOutlined style={{ fontSize: 18 }} /> },
+  { key: "6", page: "teams", label: "Teams", icon: <TeamOutlined style={{ fontSize: 18 }} /> },
   {
     key: "17",
     page: "organizations",
-    label: "Организации",
+    label: "Organizations",
     icon: <BankOutlined style={{ fontSize: 18 }} />,
     roles: all_admin_roles,
   },
   {
     key: "5",
     page: "users",
-    label: "Внутренние пользователи",
+    label: "Internal Users",
     icon: <UserOutlined style={{ fontSize: 18 }} />,
     roles: all_admin_roles,
   },
-  { key: "14", page: "api_ref", label: "Справочник API", icon: <ApiOutlined style={{ fontSize: 18 }} /> },
+  { key: "14", page: "api_ref", label: "API Reference", icon: <ApiOutlined style={{ fontSize: 18 }} /> },
   {
     key: "16",
     page: "model-hub-table",
-    label: "ИИ-хаб",
+    label: "Model Hub",
     icon: <AppstoreOutlined style={{ fontSize: 18 }} />,
   },
-  { key: "15", page: "logs", label: "Журналы", icon: <LineChartOutlined style={{ fontSize: 18 }} /> },
+  { key: "15", page: "logs", label: "Logs", icon: <LineChartOutlined style={{ fontSize: 18 }} /> },
   {
     key: "11",
     page: "guardrails",
-    label: "Контрольные барьеры",
+    label: "Guardrails",
     icon: <SafetyOutlined style={{ fontSize: 18 }} />,
     roles: all_admin_roles,
   },
   {
     key: "26",
     page: "tools",
-    label: "Инструменты",
+    label: "Tools",
     icon: <ToolOutlined style={{ fontSize: 18 }} />,
     children: [
-      { key: "18", page: "mcp-servers", label: "Серверы MCP", icon: <ToolOutlined style={{ fontSize: 18 }} /> },
+      { key: "18", page: "mcp-servers", label: "MCP Servers", icon: <ToolOutlined style={{ fontSize: 18 }} /> },
       {
         key: "21",
         page: "vector-stores",
-        label: "Векторные хранилища",
+        label: "Vector Stores",
         icon: <DatabaseOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
@@ -219,79 +221,86 @@ const menuItems: MenuItemCfg[] = [
   {
     key: "experimental",
     page: "experimental",
-    label: "Экспериментальные",
+    label: "Experimental",
     icon: <ExperimentOutlined style={{ fontSize: 18 }} />,
     children: [
       {
         key: "9",
         page: "caching",
-        label: "Кэширование",
+        label: "Caching",
         icon: <DatabaseOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "25",
         page: "prompts",
-        label: "Промпты",
+        label: "Prompts",
         icon: <FileTextOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "10",
         page: "budgets",
-        label: "Бюджеты",
+        label: "Budgets",
         icon: <BankOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "20",
         page: "transform-request",
-        label: "Песочница API",
+        label: "API Playground",
         icon: <ApiOutlined style={{ fontSize: 18 }} />,
         roles: [...all_admin_roles, ...internalUserRoles],
       },
       {
         key: "19",
         page: "tag-management",
-        label: "Управление тегами",
+        label: "Tag Management",
         icon: <TagsOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
-      { key: "4", page: "usage", label: "Старое использование", icon: <BarChartOutlined style={{ fontSize: 18 }} /> },
+      {
+        key: "27",
+        page: "claude-code-plugins",
+        label: "Claude Code Plugins",
+        icon: <ToolOutlined style={{ fontSize: 18 }} />,
+        roles: all_admin_roles,
+      },
+      { key: "4", page: "usage", label: "Old Usage", icon: <BarChartOutlined style={{ fontSize: 18 }} /> },
     ],
   },
   {
     key: "settings",
     page: "settings",
-    label: "Настройки",
+    label: "Settings",
     icon: <SettingOutlined style={{ fontSize: 18 }} />,
     roles: all_admin_roles,
     children: [
       {
         key: "11",
         page: "general-settings",
-        label: "Настройки роутера",
+        label: "Router Settings",
         icon: <SettingOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "8",
         page: "settings",
-        label: "Журналирование и оповещения",
+        label: "Logging & Alerts",
         icon: <SettingOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "13",
         page: "admin-panel",
-        label: "Администрирование",
+        label: "Admin Settings",
         icon: <SettingOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },
       {
         key: "14",
         page: "ui-theme",
-        label: "Тема интерфейса",
+        label: "UI Theme",
         icon: <SettingOutlined style={{ fontSize: 18 }} />,
         roles: all_admin_roles,
       },

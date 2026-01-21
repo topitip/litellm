@@ -3,7 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
 import { BarChart, Button } from "@tremor/react";
 import { Segmented, Tooltip } from "antd";
 import React, { useState } from "react";
-import { formatUsdAsRubles } from "../../../../utils/currencyUtils";
+import { formatRublesDirect } from "../../../../utils/currencyUtils";
 import { transformKeyInfo } from "../../../key_team_helpers/transform_key_info";
 import { keyInfoV1Call } from "../../../networking";
 import KeyInfoView from "../../../templates/key_info_view";
@@ -134,7 +134,7 @@ const TopKeyView: React.FC<TopKeyViewProps> = ({ topKeys, teams, showTags = fals
                     </div>
                     <div>
                       <span className="text-gray-300">Spend:</span>{" "}
-                      {tag.usage > 0 && tag.usage < 0.01 ? `< ${formatUsdAsRubles(0.01, 2)}` : formatUsdAsRubles(tag.usage, 2)}
+                      {tag.usage > 0 && tag.usage < 0.01 ? `< ${formatRublesDirect(0.01, 2)}` : formatRublesDirect(tag.usage, 2)}
                     </div>
                   </div>
                 }
@@ -162,11 +162,11 @@ const TopKeyView: React.FC<TopKeyViewProps> = ({ topKeys, teams, showTags = fals
   };
 
   const spendColumn = {
-    header: "Spend (RUB)",
+    header: "Spend",
     accessorKey: "spend",
     cell: (info: any) => {
       const value = info.getValue();
-      return value > 0 && value < 0.01 ? `< ${formatUsdAsRubles(0.01, 2)}` : formatUsdAsRubles(value, 2);
+      return value > 0 && value < 0.01 ? `< ${formatRublesDirect(0.01, 2)}` : formatRublesDirect(value, 2);
     },
   };
 
@@ -219,7 +219,7 @@ const TopKeyView: React.FC<TopKeyViewProps> = ({ topKeys, teams, showTags = fals
             tickGap={5}
             layout="vertical"
             showLegend={false}
-            valueFormatter={(value) => formatUsdAsRubles(value, 2)}
+            valueFormatter={(value) => formatRublesDirect(value, 2)}
             onValueChange={(item) => handleKeyClick(item)}
             showTooltip={true}
             customTooltip={(props) => {
@@ -237,7 +237,7 @@ const TopKeyView: React.FC<TopKeyViewProps> = ({ topKeys, teams, showTags = fals
                     </div>
                     <div className="text-sm">
                       <span className="text-gray-300">Spend: </span>
-                      <span className="text-white font-medium">{formatUsdAsRubles(item?.spend, 2)}</span>
+                      <span className="text-white font-medium">{formatRublesDirect(item?.spend, 2)}</span>
                     </div>
                   </div>
                 </div>

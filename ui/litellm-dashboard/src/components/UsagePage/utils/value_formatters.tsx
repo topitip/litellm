@@ -8,17 +8,17 @@ export function valueFormatter(number: number) {
   return number.toString();
 }
 
-import { formatUsdAsRubles } from "../../../utils/currencyUtils";
+import { formatRublesDirect } from "../../../utils/currencyUtils";
 
 export function valueFormatterSpend(number: number) {
   if (number === 0) return "0 ₽";
   if (number >= 1000000) {
-    const rubValue = formatUsdAsRubles(number / 1000000, 0);
+    const rubValue = formatRublesDirect(number / 1000000, 0);
     return rubValue.replace(" ₽", "M ₽");
   }
   if (number >= 1000) {
-    const rubValue = formatUsdAsRubles(number / 1000, 0);
+    const rubValue = formatRublesDirect(number / 1000, 0);
     return rubValue.replace(" ₽", "k ₽");
   }
-  return formatUsdAsRubles(number, 0);
+  return formatRublesDirect(number, 0);
 }

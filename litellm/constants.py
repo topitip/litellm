@@ -203,22 +203,22 @@ OPENAI_FILE_SEARCH_COST_PER_1K_CALLS = float(
 # Azure OpenAI Assistants feature costs
 # Source: https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
 AZURE_FILE_SEARCH_COST_PER_GB_PER_DAY = float(
-    os.getenv("AZURE_FILE_SEARCH_COST_PER_GB_PER_DAY", 0.1)  # $0.1 USD per 1 GB/Day
+    os.getenv("AZURE_FILE_SEARCH_COST_PER_GB_PER_DAY", 9.0)  # 9.0 RUB per 1 GB/Day (equivalent to $0.1 USD)
 )
 AZURE_COMPUTER_USE_INPUT_COST_PER_1K_TOKENS = float(
     os.getenv(
-        "AZURE_COMPUTER_USE_INPUT_COST_PER_1K_TOKENS", 3.0
-    )  # $0.003 USD per 1K Tokens
+        "AZURE_COMPUTER_USE_INPUT_COST_PER_1K_TOKENS", 270.0
+    )  # 270.0 RUB per 1K Tokens (equivalent to $0.003 USD)
 )
 AZURE_COMPUTER_USE_OUTPUT_COST_PER_1K_TOKENS = float(
     os.getenv(
-        "AZURE_COMPUTER_USE_OUTPUT_COST_PER_1K_TOKENS", 12.0
-    )  # $0.012 USD per 1K Tokens
+        "AZURE_COMPUTER_USE_OUTPUT_COST_PER_1K_TOKENS", 1080.0
+    )  # 1080.0 RUB per 1K Tokens (equivalent to $0.012 USD)
 )
 AZURE_VECTOR_STORE_COST_PER_GB_PER_DAY = float(
     os.getenv(
-        "AZURE_VECTOR_STORE_COST_PER_GB_PER_DAY", 0.1
-    )  # $0.1 USD per 1 GB/Day (same as file search)
+        "AZURE_VECTOR_STORE_COST_PER_GB_PER_DAY", 9.0
+    )  # 9.0 RUB per 1 GB/Day (equivalent to $0.1 USD, same as file search)
 )
 MIN_NON_ZERO_TEMPERATURE = float(os.getenv("MIN_NON_ZERO_TEMPERATURE", 0.0001))
 #### RELIABILITY ####
@@ -1103,8 +1103,8 @@ MAX_SPENDLOG_ROWS_TO_QUERY = int(
     os.getenv("MAX_SPENDLOG_ROWS_TO_QUERY", 1_000_000)
 )  # if spendLogs has more than 1M rows, do not query the DB
 DEFAULT_SOFT_BUDGET = float(
-    os.getenv("DEFAULT_SOFT_BUDGET", 50.0)
-)  # by default all litellm proxy keys have a soft budget of 50.0
+    os.getenv("DEFAULT_SOFT_BUDGET", 4500.0)
+)  # by default all litellm proxy keys have a soft budget of 4500.0 RUB (equivalent to $50.0 USD)
 # makes it clear this is a rate limit error for a litellm virtual key
 RATE_LIMIT_ERROR_MESSAGE_FOR_VIRTUAL_KEY = "LiteLLM Virtual Key user_api_key_hash"
 

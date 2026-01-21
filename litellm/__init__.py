@@ -330,7 +330,7 @@ budget_duration: Optional[str] = (
     None  # proxy only - resets budget after fixed duration. You can set duration as seconds ("30s"), minutes ("30m"), hours ("30h"), days ("30d").
 )
 default_soft_budget: float = (
-    DEFAULT_SOFT_BUDGET  # by default all litellm proxy keys have a soft budget of 50.0
+    DEFAULT_SOFT_BUDGET  # by default all litellm proxy keys have a soft budget of 4500.0 RUB (equivalent to $50.0 USD)
 )
 forward_traceparent_to_llm_provider: bool = False
 
@@ -363,7 +363,7 @@ default_team_settings: Optional[List] = None
 max_user_budget: Optional[float] = None
 default_max_internal_user_budget: Optional[float] = None
 max_internal_user_budget: Optional[float] = None
-max_ui_session_budget: Optional[float] = 10  # $10 USD budgets for UI Chat sessions
+max_ui_session_budget: Optional[float] = 900  # 900 RUB budgets for UI Chat sessions (equivalent to $10 USD)
 internal_user_budget_duration: Optional[str] = None
 tag_budget_config: Optional[Dict[str, "BudgetConfig"]] = None
 max_end_user_budget: Optional[float] = None

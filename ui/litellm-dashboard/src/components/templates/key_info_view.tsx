@@ -1,5 +1,6 @@
 import useTeams from "@/app/(dashboard)/hooks/useTeams";
-import { formatNumberWithCommas, copyToClipboard as utilCopyToClipboard } from "@/utils/dataUtils";
+import { copyToClipboard as utilCopyToClipboard } from "@/utils/dataUtils";
+import { formatUsdAsRubles } from "@/utils/currencyUtils";
 import { mapEmptyStringToNull } from "@/utils/keyUpdateUtils";
 import { ArrowLeftIcon, RefreshIcon, TrashIcon } from "@heroicons/react/outline";
 import { Badge, Button, Card, Grid, Tab, TabGroup, TabList, TabPanel, TabPanels, Text, Title } from "@tremor/react";
@@ -418,7 +419,7 @@ export default function KeyInfoView({
           },
           {
             label: "Spend",
-            value: currentKeyData?.spend ? `$${formatNumberWithCommas(currentKeyData.spend, 4)}` : "$0.0000",
+            value: currentKeyData?.spend ? formatUsdAsRubles(currentKeyData.spend, 4) : "0.0000 ₽",
           },
         ]}
         onCancel={() => {
@@ -443,11 +444,11 @@ export default function KeyInfoView({
               <Card>
                 <Text>Spend</Text>
                 <div className="mt-2">
-                  <Title>${formatNumberWithCommas(currentKeyData.spend, 4)}</Title>
+                  <Title>{formatUsdAsRubles(currentKeyData.spend, 4)}</Title>
                   <Text>
                     of{" "}
                     {currentKeyData.max_budget !== null
-                      ? `$${formatNumberWithCommas(currentKeyData.max_budget)}`
+                      ? formatUsdAsRubles(currentKeyData.max_budget, 2)
                       : "Unlimited"}
                   </Text>
                 </div>
@@ -587,14 +588,14 @@ export default function KeyInfoView({
 
                   <div>
                     <Text className="font-medium">Spend</Text>
-                    <Text>${formatNumberWithCommas(currentKeyData.spend, 4)} USD</Text>
+                    <Text>{formatUsdAsRubles(currentKeyData.spend, 4)} RUB</Text>
                   </div>
 
                   <div>
                     <Text className="font-medium">Budget</Text>
                     <Text>
                       {currentKeyData.max_budget !== null
-                        ? `$${formatNumberWithCommas(currentKeyData.max_budget, 2)}`
+                        ? formatUsdAsRubles(currentKeyData.max_budget, 2)
                         : "Unlimited"}
                     </Text>
                   </div>

@@ -3,13 +3,13 @@ import TabItem from '@theme/TabItem';
 
 # Budget Routing
 LiteLLM Supports setting the following budgets:
-- Provider budget - $100/day for OpenAI, $100/day for Azure.
-- Model budget - $100/day for gpt-4  https://api-base-1, $100/day for gpt-4o https://api-base-2
-- Tag budget - $10/day for tag=`product:chat-bot`, $100/day for tag=`product:chat-bot-2`
+- Provider budget - 9000 RUB/day for OpenAI, 9000 RUB/day for Azure (equivalent to $100 USD).
+- Model budget - 9000 RUB/day for gpt-4  https://api-base-1, 9000 RUB/day for gpt-4o https://api-base-2
+- Tag budget - 900 RUB/day for tag=`product:chat-bot`, 9000 RUB/day for tag=`product:chat-bot-2`
 
 
 ## Provider Budgets
-Use this to set budgets for LLM Providers - example $100/day for OpenAI, $100/day for Azure.
+Use this to set budgets for LLM Providers - example 9000 RUB/day for OpenAI, 9000 RUB/day for Azure (equivalent to $100 USD).
 
 ### Quick Start
 
@@ -191,7 +191,7 @@ litellm_provider_remaining_budget_metric{api_provider="openai"} 10
 
 ## Model Budgets
 
-Use this to set budgets for models - example $10/day for openai/gpt-4o, $100/day for openai/gpt-4o-mini
+Use this to set budgets for models - example 9000 RUB/day for openai/gpt-4o, 90000 RUB/day for openai/gpt-4o-mini (equivalent to $10/day and $100/day respectively)
 
 ### Quick Start
 
@@ -278,7 +278,7 @@ Expected response on failure
 
 :::
 
-Use this to set budgets for tags - example $10/day for tag=`product:chat-bot`, $100/day for tag=`product:chat-bot-2`
+Use this to set budgets for tags - example 9000 RUB/day for tag=`product:chat-bot`, 90000 RUB/day for tag=`product:chat-bot-2`
 
 
 ### Quick Start
@@ -403,15 +403,15 @@ Example structure:
 ```yaml
 provider_budget_config:
   openai:
-    budget_limit: 100.0    # $100 USD
+    budget_limit: 9000.0    # 9000 RUB (equivalent to $100 USD)
     time_period: "1d"      # 1 day period
   azure:
-    budget_limit: 500.0    # $500 USD
+    budget_limit: 45000.0    # 45000 RUB (equivalent to $500 USD)
     time_period: "30d"     # 30 day period
   anthropic:
-    budget_limit: 200.0    # $200 USD
+    budget_limit: 18000.0    # 18000 RUB (equivalent to $200 USD)
     time_period: "1mo"     # 1 month period
   gemini:
-    budget_limit: 50.0     # $50 USD
+    budget_limit: 4500.0     # 4500 RUB (equivalent to $50 USD)
     time_period: "24h"     # 24 hour period
 ```

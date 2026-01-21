@@ -1,6 +1,6 @@
 # 🔑 LiteLLM Keys (Access Claude-2, Llama2-70b, etc.)
 
-Use this if you're trying to add support for new LLMs and need access for testing. We provide a free $10 community-key for testing all providers on LiteLLM: 
+Use this if you're trying to add support for new LLMs and need access for testing. We provide a free 900 RUB community-key for testing all providers on LiteLLM (equivalent to $10 USD):
 
 ## usage (community-key)
 

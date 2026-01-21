@@ -50,8 +50,8 @@ def mock_lookup_user_email():
 
 
 def test_format_key_budget(base_email_logger):
-    # Test with budget
-    assert base_email_logger._format_key_budget(100.0) == "$100.0"
+    # Test with budget (converted from USD to RUB)
+    assert base_email_logger._format_key_budget(100.0) == "9000.0 ₽"
 
     # Test with no budget
     assert base_email_logger._format_key_budget(None) == "No budget"
@@ -92,7 +92,7 @@ async def test_send_key_created_email(
         assert call_args["to_email"] == ["test@example.com"]
         assert call_args["subject"] == "LiteLLM: Test Key Created"
         assert "test_key" in call_args["html_body"]
-        assert "$100.0" in call_args["html_body"]
+        assert "9000.0 ₽" in call_args["html_body"]
 
 
 @pytest.mark.asyncio
@@ -248,7 +248,7 @@ async def test_send_key_rotated_email(
         assert call_args["to_email"] == ["test@example.com"]
         assert call_args["subject"] == "LiteLLM: API Key Rotated"
         assert "sk-rotated-key-123" in call_args["html_body"]
-        assert "$200.0" in call_args["html_body"]
+        assert "18000.0 ₽" in call_args["html_body"]
         assert "rotated" in call_args["html_body"].lower()
         assert "Security Best Practices" in call_args["html_body"]
 
@@ -619,7 +619,7 @@ async def test_send_soft_budget_alert_email(
         user_email="test@example.com",
         event_group=Litellm_EntityType.USER,
         event="soft_budget_crossed",
-        event_message="Soft Budget Crossed - Total Soft Budget: $100.0",
+        event_message="Soft Budget Crossed - Total Soft Budget: 9000.0 ₽",
         spend=105.0,
         max_budget=200.0,
         soft_budget=100.0,
@@ -639,10 +639,10 @@ async def test_send_soft_budget_alert_email(
         call_args = mock_send_email.call_args[1]
         assert call_args["from_email"] == BaseEmailLogger.DEFAULT_LITELLM_EMAIL
         assert call_args["to_email"] == ["test@example.com"]
-        assert call_args["subject"] == "LiteLLM: Soft Budget Crossed - Total Soft Budget: $100.0"
-        assert "$100.0" in call_args["html_body"]  # soft_budget
-        assert "$105.0" in call_args["html_body"]  # spend
-        assert "$200.0" in call_args["html_body"]  # max_budget
+        assert call_args["subject"] == "LiteLLM: Soft Budget Crossed - Total Soft Budget: 9000.0 ₽"
+        assert "9000.0 ₽" in call_args["html_body"]  # soft_budget
+        assert "9450.0 ₽" in call_args["html_body"]  # spend
+        assert "18000.0 ₽" in call_args["html_body"]  # max_budget
 
 
 @pytest.mark.asyncio
@@ -655,7 +655,7 @@ async def test_send_soft_budget_alert_email_no_max_budget(
         user_email="test@example.com",
         event_group=Litellm_EntityType.USER,
         event="soft_budget_crossed",
-        event_message="Soft Budget Crossed - Total Soft Budget: $100.0",
+        event_message="Soft Budget Crossed - Total Soft Budget: 9000.0 ₽",
         spend=105.0,
         max_budget=None,
         soft_budget=100.0,
@@ -671,8 +671,8 @@ async def test_send_soft_budget_alert_email_no_max_budget(
 
         mock_send_email.assert_called_once()
         call_args = mock_send_email.call_args[1]
-        assert "$100.0" in call_args["html_body"]  # soft_budget
-        assert "$105.0" in call_args["html_body"]  # spend
+        assert "9000.0 ₽" in call_args["html_body"]  # soft_budget
+        assert "9450.0 ₽" in call_args["html_body"]  # spend
         assert "Maximum Budget" not in call_args["html_body"]  # max_budget should not be shown
 
 
@@ -834,11 +834,11 @@ async def test_get_email_params_soft_budget_crossed(
         result = await base_email_logger._get_email_params(
             email_event=EmailEvent.soft_budget_crossed,
             user_email="test@example.com",
-            event_message="Soft Budget Crossed - Total Soft Budget: $100.0",
+            event_message="Soft Budget Crossed - Total Soft Budget: 9000.0 ₽",
         )
 
         # Should use default subject template for soft_budget_crossed
-        assert result.subject == "LiteLLM: Soft Budget Crossed - Total Soft Budget: $100.0"
+        assert result.subject == "LiteLLM: Soft Budget Crossed - Total Soft Budget: 9000.0 ₽"
         assert result.recipient_email == "test@example.com"
         assert result.base_url == "http://test.com"
 

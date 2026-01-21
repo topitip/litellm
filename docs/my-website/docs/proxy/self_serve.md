@@ -237,7 +237,7 @@ litellm_settings:
   internal_user_budget_duration: "1mo" # reset every month
 ```
 
-This sets a max budget of $10 USD for internal users when they sign up. 
+This sets a max budget of 900 RUB for internal users when they sign up (equivalent to $10 USD).
 
 You can also manage these settings visually in the UI:
 

@@ -1,4 +1,5 @@
 import NotificationsManager from "@/components/molecules/notifications_manager";
+import { formatUsdAsRubles } from "./currencyUtils";
 
 export function updateExistingKeys<Source extends object>(target: Source, source: object): Source {
   const clonedTarget = structuredClone(target);
@@ -57,10 +58,11 @@ export const getSpendString = (value: number | null | undefined, decimals: numbe
 
   if (numericFormatted === 0) {
     const threshold = (1 / 10 ** decimals).toFixed(decimals);
-    return `< $${threshold}`;
+    const thresholdInRub = formatUsdAsRubles(Number(threshold), decimals);
+    return `< ${thresholdInRub}`;
   }
 
-  return `$${formatted}`;
+  return formatUsdAsRubles(value, decimals);
 };
 
 export const copyToClipboard = async (

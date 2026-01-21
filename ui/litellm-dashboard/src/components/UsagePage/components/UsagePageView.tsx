@@ -523,11 +523,10 @@ const UsagePage: React.FC<UsagePageProps> = ({ teams, organizations }) => {
                           <Card>
                             <Title>Average Cost per Request</Title>
                             <Text className="text-2xl font-bold mt-2">
-                              $
                               {formatNumberWithCommas(
                                 (totalSpend || 0) / (userSpendData.metadata?.total_api_requests || 1),
                                 4,
-                              )}
+                              )} ₽
                             </Text>
                           </Card>
                         </Grid>
@@ -558,7 +557,7 @@ const UsagePage: React.FC<UsagePageProps> = ({ teams, organizations }) => {
                                 <div className="bg-white p-4 shadow-lg rounded-lg border">
                                   <p className="font-bold">{data.date}</p>
                                   <p className="text-cyan-500">
-                                    Spend: ${formatNumberWithCommas(data.metrics.spend, 2)}
+                                    Spend: {formatNumberWithCommas(data.metrics.spend, 2)} ₽
                                   </p>
                                   <p className="text-gray-600">Requests: {data.metrics.api_requests}</p>
                                   <p className="text-gray-600">Successful: {data.metrics.successful_requests}</p>
@@ -647,7 +646,7 @@ const UsagePage: React.FC<UsagePageProps> = ({ teams, organizations }) => {
                                     return (
                                       <div className="bg-white p-4 shadow-lg rounded-lg border">
                                         <p className="font-bold">{data.key}</p>
-                                        <p className="text-cyan-500">Spend: ${formatNumberWithCommas(data.spend, 2)}</p>
+                                        <p className="text-cyan-500">Spend: {formatNumberWithCommas(data.spend, 2)} ₽</p>
                                         <p className="text-gray-600">
                                           Total Requests: {data.requests.toLocaleString()}
                                         </p>
@@ -683,7 +682,7 @@ const UsagePage: React.FC<UsagePageProps> = ({ teams, organizations }) => {
                                 data={getProviderSpend()}
                                 index="provider"
                                 category="spend"
-                                valueFormatter={(value) => `$${formatNumberWithCommas(value, 2)}`}
+                                valueFormatter={(value) => `${formatNumberWithCommas(value, 2)} ₽`}
                                 colors={["cyan"]}
                               />
                             </Col>
@@ -726,7 +725,7 @@ const UsagePage: React.FC<UsagePageProps> = ({ teams, organizations }) => {
                                             <span>{provider.provider}</span>
                                           </div>
                                         </TableCell>
-                                        <TableCell>${formatNumberWithCommas(provider.spend, 2)}</TableCell>
+                                        <TableCell>{formatNumberWithCommas(provider.spend, 2)} ₽</TableCell>
                                         <TableCell className="text-green-600">
                                           {provider.successful_requests.toLocaleString()}
                                         </TableCell>

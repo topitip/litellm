@@ -112,7 +112,7 @@ const EndpointUsageTable: React.FC<EndpointUsageTableProps> = ({ endpointData })
       title: "Spend",
       dataIndex: "spend",
       key: "spend",
-      render: (value: number) => `$${formatNumberWithCommas(value, 2)}`,
+      render: (value: number) => `${formatNumberWithCommas(value, 2)} ₽`,
     },
   ];
 

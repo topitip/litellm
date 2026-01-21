@@ -28,11 +28,11 @@ export default function TopModelView({ topModels, topModelsLimit, setTopModelsLi
       cell: (info: any) => info.getValue() || "-",
     },
     {
-      header: "Spend (USD)",
+      header: "Spend",
       accessorKey: "spend",
       cell: (info: any) => {
         const value = info.getValue();
-        return `$${formatNumberWithCommas(value, 2)}`;
+        return `${formatNumberWithCommas(value, 2)} ₽`;
       },
     },
     {
@@ -90,7 +90,7 @@ export default function TopModelView({ topModels, topModelsLimit, setTopModelsLi
             index="key"
             categories={["spend"]}
             colors={["cyan"]}
-            valueFormatter={(value) => `$${formatNumberWithCommas(value, 2)}`}
+            valueFormatter={(value) => `${formatNumberWithCommas(value, 2)} ₽`}
             layout="vertical"
             yAxisWidth={200}
             tickGap={5}

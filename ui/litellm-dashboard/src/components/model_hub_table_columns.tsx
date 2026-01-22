@@ -64,7 +64,7 @@ const formatCost = (cost: number | string | null | undefined) => {
   if (parsedCost == null) {
     return "-";
   }
-  return `$${(parsedCost * 1_000_000).toFixed(2)}`;
+  return `${(parsedCost * 1_000_000).toFixed(2)}₽`;
 };
 
 const formatTokens = (tokens: number) => {

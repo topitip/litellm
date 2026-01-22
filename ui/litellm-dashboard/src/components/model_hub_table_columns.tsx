@@ -35,8 +35,36 @@ const getModelCapabilities = (model: ModelHubData) => {
     .map(([key]) => key);
 };
 
-const formatCost = (cost: number) => {
-  return `$${(cost * 1_000_000).toFixed(2)}`;
+// Helper function to safely parse cost values (handles strings, numbers, null, undefined)
+const parseCostValue = (value: any): number | null => {
+  if (value == null) return null;
+  if (typeof value === "number") {
+    return isNaN(value) || !isFinite(value) ? null : value;
+  }
+  if (typeof value === "string") {
+    // Handle incorrect scientific notation format (e.g., "1.34*e-05" -> "1.34e-05")
+    // Remove asterisks and other invalid characters, but preserve valid number format
+    let cleaned = value.replace(/\*/g, "");
+    // Try to extract a valid number pattern
+    const numberMatch = cleaned.match(/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+    if (numberMatch) {
+      cleaned = numberMatch[0];
+    } else {
+      // If no valid pattern found, try basic cleanup
+      cleaned = cleaned.replace(/[^0-9.eE+-]/g, "");
+    }
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) || !isFinite(parsed) ? null : parsed;
+  }
+  return null;
+};
+
+const formatCost = (cost: number | string | null | undefined) => {
+  const parsedCost = parseCostValue(cost);
+  if (parsedCost == null) {
+    return "-";
+  }
+  return `$${(parsedCost * 1_000_000).toFixed(2)}`;
 };
 
 const formatTokens = (tokens: number) => {
@@ -167,10 +195,8 @@ export const modelHubColumns = (
 
         return (
           <div className="space-y-1">
-            <Text className="text-xs">{model.input_cost_per_token ? formatCost(model.input_cost_per_token) : "-"}</Text>
-            <Text className="text-xs text-gray-500">
-              {model.output_cost_per_token ? formatCost(model.output_cost_per_token) : "-"}
-            </Text>
+            <Text className="text-xs">{formatCost(model.input_cost_per_token)}</Text>
+            <Text className="text-xs text-gray-500">{formatCost(model.output_cost_per_token)}</Text>
           </div>
         );
       },

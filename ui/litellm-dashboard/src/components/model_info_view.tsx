@@ -354,6 +354,30 @@ export default function ModelInfoView({
   };
   const isWildcardModel = modelData.litellm_model_name.includes("*");
 
+  // Helper function to safely parse cost values (handles strings, numbers, null, undefined)
+  const parseCostValue = (value: any): number | null => {
+    if (value == null) return null;
+    if (typeof value === "number") {
+      return isNaN(value) || !isFinite(value) ? null : value;
+    }
+    if (typeof value === "string") {
+      // Handle incorrect scientific notation format (e.g., "1.34*e-05" -> "1.34e-05")
+      // Remove asterisks and other invalid characters, but preserve valid number format
+      let cleaned = value.replace(/\*/g, "");
+      // Try to extract a valid number pattern
+      const numberMatch = cleaned.match(/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+      if (numberMatch) {
+        cleaned = numberMatch[0];
+      } else {
+        // If no valid pattern found, try basic cleanup
+        cleaned = cleaned.replace(/[^0-9.eE+-]/g, "");
+      }
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) || !isFinite(parsed) ? null : parsed;
+    }
+    return null;
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
@@ -541,12 +565,18 @@ export default function ModelInfoView({
                     max_retries: localModelData.litellm_params.max_retries,
                     timeout: localModelData.litellm_params.timeout,
                     stream_timeout: localModelData.litellm_params.stream_timeout,
-                    input_cost: localModelData.litellm_params.input_cost_per_token
-                      ? localModelData.litellm_params.input_cost_per_token * 1_000_000
-                      : localModelData.model_info?.input_cost_per_token * 1_000_000 || null,
-                    output_cost: localModelData.litellm_params?.output_cost_per_token
-                      ? localModelData.litellm_params.output_cost_per_token * 1_000_000
-                      : localModelData.model_info?.output_cost_per_token * 1_000_000 || null,
+                    input_cost: (() => {
+                      const litellmValue = parseCostValue(localModelData.litellm_params?.input_cost_per_token);
+                      const modelInfoValue = parseCostValue(localModelData.model_info?.input_cost_per_token);
+                      const value = litellmValue != null ? litellmValue : modelInfoValue;
+                      return value != null ? value * 1_000_000 : null;
+                    })(),
+                    output_cost: (() => {
+                      const litellmValue = parseCostValue(localModelData.litellm_params?.output_cost_per_token);
+                      const modelInfoValue = parseCostValue(localModelData.model_info?.output_cost_per_token);
+                      const value = litellmValue != null ? litellmValue : modelInfoValue;
+                      return value != null ? value * 1_000_000 : null;
+                    })(),
                     cache_control: localModelData.litellm_params?.cache_control_injection_points ? true : false,
                     cache_control_injection_points: localModelData.litellm_params?.cache_control_injection_points || [],
                     model_access_group: Array.isArray(localModelData.model_info?.access_groups)
@@ -594,11 +624,12 @@ export default function ModelInfoView({
                           </Form.Item>
                         ) : (
                           <div className="mt-1 p-2 bg-gray-50 rounded">
-                            {localModelData?.litellm_params?.input_cost_per_token
-                              ? (localModelData.litellm_params?.input_cost_per_token * 1_000_000).toFixed(4)
-                              : localModelData?.model_info?.input_cost_per_token
-                                ? (localModelData.model_info.input_cost_per_token * 1_000_000).toFixed(4)
-                                : null}
+                            {(() => {
+                              const litellmValue = parseCostValue(localModelData?.litellm_params?.input_cost_per_token);
+                              const modelInfoValue = parseCostValue(localModelData?.model_info?.input_cost_per_token);
+                              const value = litellmValue != null ? litellmValue : modelInfoValue;
+                              return value != null ? (value * 1_000_000).toFixed(4) : null;
+                            })()}
                           </div>
                         )}
                       </div>
@@ -611,11 +642,12 @@ export default function ModelInfoView({
                           </Form.Item>
                         ) : (
                           <div className="mt-1 p-2 bg-gray-50 rounded">
-                            {localModelData?.litellm_params?.output_cost_per_token
-                              ? (localModelData.litellm_params.output_cost_per_token * 1_000_000).toFixed(4)
-                              : localModelData?.model_info?.output_cost_per_token
-                                ? (localModelData.model_info.output_cost_per_token * 1_000_000).toFixed(4)
-                                : null}
+                            {(() => {
+                              const litellmValue = parseCostValue(localModelData?.litellm_params?.output_cost_per_token);
+                              const modelInfoValue = parseCostValue(localModelData?.model_info?.output_cost_per_token);
+                              const value = litellmValue != null ? litellmValue : modelInfoValue;
+                              return value != null ? (value * 1_000_000).toFixed(4) : null;
+                            })()}
                           </div>
                         )}
                       </div>

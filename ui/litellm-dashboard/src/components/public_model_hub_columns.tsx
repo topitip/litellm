@@ -21,8 +21,36 @@ interface ModelGroupInfo {
   [key: string]: any;
 }
 
-const formatCost = (cost: number) => {
-  return `$${(cost * 1_000_000).toFixed(4)}`;
+// Helper function to safely parse cost values (handles strings, numbers, null, undefined)
+const parseCostValue = (value: any): number | null => {
+  if (value == null) return null;
+  if (typeof value === "number") {
+    return isNaN(value) || !isFinite(value) ? null : value;
+  }
+  if (typeof value === "string") {
+    // Handle incorrect scientific notation format (e.g., "1.34*e-05" -> "1.34e-05")
+    // Remove asterisks and other invalid characters, but preserve valid number format
+    let cleaned = value.replace(/\*/g, "");
+    // Try to extract a valid number pattern
+    const numberMatch = cleaned.match(/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+    if (numberMatch) {
+      cleaned = numberMatch[0];
+    } else {
+      // If no valid pattern found, try basic cleanup
+      cleaned = cleaned.replace(/[^0-9.eE+-]/g, "");
+    }
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) || !isFinite(parsed) ? null : parsed;
+  }
+  return null;
+};
+
+const formatCost = (cost: number | string | null | undefined) => {
+  const parsedCost = parseCostValue(cost);
+  if (parsedCost == null) {
+    return "Free";
+  }
+  return `$${(parsedCost * 1_000_000).toFixed(4)}`;
 };
 
 const formatTokens = (tokens: number | undefined) => {
@@ -137,7 +165,7 @@ export const publicModelHubColumns = (): ColumnDef<ModelGroupInfo>[] => [
     enableSorting: true,
     cell: ({ row }) => {
       const cost = row.original.input_cost_per_token;
-      return <Text className="text-center">{cost ? formatCost(cost) : "Free"}</Text>;
+      return <Text className="text-center">{formatCost(cost)}</Text>;
     },
     size: 100,
   },
@@ -147,7 +175,7 @@ export const publicModelHubColumns = (): ColumnDef<ModelGroupInfo>[] => [
     enableSorting: true,
     cell: ({ row }) => {
       const cost = row.original.output_cost_per_token;
-      return <Text className="text-center">{cost ? formatCost(cost) : "Free"}</Text>;
+      return <Text className="text-center">{formatCost(cost)}</Text>;
     },
     size: 100,
   },

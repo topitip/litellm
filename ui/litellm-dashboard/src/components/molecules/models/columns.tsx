@@ -4,6 +4,7 @@ import { Badge, Button, Icon } from "@tremor/react";
 import { Tooltip } from "antd";
 import { ModelData } from "../../model_dashboard/types";
 import { ProviderLogo } from "./ProviderLogo";
+import { formatRubles } from "@/utils/currencyUtils";
 
 export const columns = (
   userRole: string,
@@ -172,9 +173,9 @@ export const columns = (
           <Tooltip title="Стоимость за 1М токенов">
           <div className="flex flex-col min-w-0 max-w-[120px]">
             {/* Input Cost - Primary */}
-            {inputCost && <div className="text-xs font-medium text-gray-900 truncate">Вход: ${inputCost}</div>}
+            {inputCost && <div className="text-xs font-medium text-gray-900 truncate">Вход: {formatRubles(inputCost, 2)}</div>}
             {/* Output Cost - Secondary */}
-            {outputCost && <div className="text-xs text-gray-500 truncate mt-0.5">Выход: ${outputCost}</div>}
+            {outputCost && <div className="text-xs text-gray-500 truncate mt-0.5">Выход: {formatRubles(outputCost, 2)}</div>}
           </div>
         </Tooltip>
       );

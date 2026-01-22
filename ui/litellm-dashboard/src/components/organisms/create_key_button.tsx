@@ -733,7 +733,7 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey }) => {
                     className="mt-4"
                     label={
                       <span>
-                        Макс. бюджет (USD){" "}
+                        Макс. бюджет (RUB){" "}
                         <Tooltip title="Максимальная сумма в долларах, которую может потратить этот ключ. При достижении лимита ключ блокируется">
                           <InfoCircleOutlined style={{ marginLeft: "4px" }} />
                         </Tooltip>

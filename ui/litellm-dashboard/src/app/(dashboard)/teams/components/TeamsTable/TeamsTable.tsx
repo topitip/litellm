@@ -45,8 +45,8 @@ const TeamsTable = ({
           <TableHeaderCell>Название команды</TableHeaderCell>
           <TableHeaderCell>ID команды</TableHeaderCell>
           <TableHeaderCell>Создана</TableHeaderCell>
-          <TableHeaderCell>Расходы (USD)</TableHeaderCell>
-          <TableHeaderCell>Бюджет (USD)</TableHeaderCell>
+          <TableHeaderCell>Расходы (RUB)</TableHeaderCell>
+          <TableHeaderCell>Бюджет (RUB)</TableHeaderCell>
           <TableHeaderCell>Модели</TableHeaderCell>
           <TableHeaderCell>Организация</TableHeaderCell>
           <TableHeaderCell>Ваша роль</TableHeaderCell>

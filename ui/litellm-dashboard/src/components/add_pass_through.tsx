@@ -275,7 +275,7 @@ const AddPassThroughEndpoint: React.FC<AddFallbacksProps> = ({
               <Form.Item
                 label={
                   <span className="text-sm font-medium text-gray-700 flex items-center">
-                    Cost Per Request (USD)
+                    Cost Per Request (RUB)
                     <Tooltip title="Optional: Track costs for requests to this endpoint">
                       <InfoCircleOutlined className="ml-2 text-gray-400 hover:text-gray-600" />
                     </Tooltip>

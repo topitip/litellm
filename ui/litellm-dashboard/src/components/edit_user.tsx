@@ -80,7 +80,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ visible, possibleUIRoles,
           </Form.Item>
 
           <Form.Item
-            label="Расходы (USD)"
+            label="Расходы (RUB)"
             name="spend"
             tooltip="(float) - Расходы на все завершённые вызовы LLM этого пользователя"
             help="По всем ключам (включая ключи с team_id)."
@@ -89,7 +89,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ visible, possibleUIRoles,
           </Form.Item>
 
           <Form.Item
-            label="Бюджет пользователя (USD)"
+            label="Бюджет пользователя (RUB)"
             name="max_budget"
             tooltip="(float) - Максимальный бюджет этого пользователя"
             help="Максимальный бюджет этого пользователя."

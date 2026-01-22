@@ -53,7 +53,7 @@ export const columns = (
       cell: ({ row }) => <span className="text-xs">{row.original.user_alias || "-"}</span>,
     },
     {
-      header: "Расходы (USD)",
+      header: "Расходы (RUB)",
       accessorKey: "spend",
       enableSorting: true,
       cell: ({ row }) => (
@@ -61,7 +61,7 @@ export const columns = (
       ),
     },
     {
-      header: "Бюджет (USD)",
+      header: "Бюджет (RUB)",
       accessorKey: "max_budget",
       enableSorting: false,
       cell: ({ row }) => (

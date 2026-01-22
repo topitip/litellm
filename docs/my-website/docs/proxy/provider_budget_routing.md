@@ -182,7 +182,7 @@ Example Response
 
 LiteLLM will emit the following metric on Prometheus to track the remaining budget for each provider
 
-This metric indicates the remaining budget for a provider in dollars (USD)
+This metric indicates the remaining budget for a provider in dollars (RUB)
 
 ```
 litellm_provider_remaining_budget_metric{api_provider="openai"} 10
@@ -203,13 +203,13 @@ model_list:
     litellm_params:
       model: openai/gpt-4o
       api_key: os.environ/OPENAI_API_KEY
-      max_budget: 0.000000000001 # (USD)
+      max_budget: 0.000000000001 # (RUB)
       budget_duration: 1d # (Duration. can be 1s, 1m, 1h, 1d, 1mo)
   - model_name: gpt-4o-mini
     litellm_params:
       model: openai/gpt-4o-mini
       api_key: os.environ/OPENAI_API_KEY
-      max_budget: 100 # (USD)
+      max_budget: 100 # (RUB)
       budget_duration: 30d # (Duration. can be 1s, 1m, 1h, 1d, 1mo)
 
 
@@ -295,10 +295,10 @@ model_list:
 litellm_settings:
   tag_budget_config:
     product:chat-bot: # (Tag)
-      max_budget: 0.000000000001 # (USD)
+      max_budget: 0.000000000001 # (RUB)
       budget_duration: 1d # (Duration)
     product:chat-bot-2: # (Tag)
-      max_budget: 100 # (USD)
+      max_budget: 100 # (RUB)
       budget_duration: 1d # (Duration)
 ```
 

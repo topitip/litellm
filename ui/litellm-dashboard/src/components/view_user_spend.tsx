@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { modelAvailableCall } from "./networking";
-import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 
 // Define the props type
@@ -19,7 +19,7 @@ const ViewUserSpend: React.FC<ViewUserSpendProps> = ({ userSpend, userMaxBudget,
   const { accessToken, userRole, userId: userID } = useAuthorized();
   let [spend, setSpend] = useState(userSpend !== null ? userSpend : 0.0);
   const [maxBudget, setMaxBudget] = useState(
-    selectedTeam ? Number(formatNumberWithCommas(selectedTeam.max_budget, 4)) : null,
+    selectedTeam ? Number(selectedTeam.max_budget) : null,
   );
   useEffect(() => {
     if (selectedTeam) {
@@ -114,9 +114,9 @@ const ViewUserSpend: React.FC<ViewUserSpendProps> = ({ userSpend, userMaxBudget,
     modelsToDisplay = userModels;
   }
 
-  const displayMaxBudget = maxBudget !== null ? `$${formatNumberWithCommas(Number(maxBudget), 4)} limit` : "No limit";
+  const displayMaxBudget = maxBudget !== null ? `${formatRubles(Number(maxBudget), 4)} limit` : "No limit";
 
-  const roundedSpend = spend !== undefined ? formatNumberWithCommas(spend, 4) : null;
+  const roundedSpend = spend !== undefined ? formatRubles(spend, 4) : null;
 
   console.log(`spend in view user spend: ${spend}`);
   return (
@@ -125,7 +125,7 @@ const ViewUserSpend: React.FC<ViewUserSpendProps> = ({ userSpend, userMaxBudget,
         <div>
           <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">Total Spend</p>
           <p className="text-2xl text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
-            ${roundedSpend}
+            {roundedSpend}
           </p>
         </div>
         <div>

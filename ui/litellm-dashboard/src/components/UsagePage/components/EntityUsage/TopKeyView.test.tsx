@@ -81,7 +81,7 @@ describe("TopKeyView", () => {
     render(<TopKeyView {...baseProps} />);
     expect(screen.getByText("Key ID")).toBeInTheDocument();
     expect(screen.getByText("Key Alias")).toBeInTheDocument();
-    expect(screen.getByText("Spend (USD)")).toBeInTheDocument();
+    expect(screen.getByText("Spend")).toBeInTheDocument();
   });
 
   it("should display Tags column when showTags is true", () => {
@@ -115,7 +115,7 @@ describe("TopKeyView", () => {
     expect(screen.getByText("Test Key")).toBeInTheDocument();
     expect(screen.getByText(/tag-1/)).toBeInTheDocument();
     expect(screen.getByText(/tag-2/)).toBeInTheDocument();
-    expect(screen.getByText("$100.00")).toBeInTheDocument();
+    expect(screen.getByText("100.00 ₽")).toBeInTheDocument();
   });
 
   it("should switch to chart view when chart view button is clicked", async () => {
@@ -203,7 +203,7 @@ describe("TopKeyView", () => {
         ]}
       />,
     );
-    expect(screen.getByText("$123.46")).toBeInTheDocument();
+    expect(screen.getByText("123.46 ₽")).toBeInTheDocument();
   });
 
   it("should display less than 0.01 spend as <$0.01", () => {
@@ -219,7 +219,7 @@ describe("TopKeyView", () => {
         ]}
       />,
     );
-    expect(screen.getByText("<$0.01")).toBeInTheDocument();
+    expect(screen.getByText("<0.01 ₽")).toBeInTheDocument();
   });
 
   it("should display zero spend correctly", () => {
@@ -235,7 +235,7 @@ describe("TopKeyView", () => {
         ]}
       />,
     );
-    expect(screen.getByText("$0.00")).toBeInTheDocument();
+    expect(screen.getByText("0.00 ₽")).toBeInTheDocument();
   });
 
   it("should display dash for empty tags", () => {

@@ -123,8 +123,8 @@ describe("TeamMembersComponent", () => {
     expect(screen.getByText("User ID")).toBeInTheDocument();
     expect(screen.getByText("User Email")).toBeInTheDocument();
     expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Team Member Spend (USD)")).toBeInTheDocument();
-    expect(screen.getByText("Team Member Budget (USD)")).toBeInTheDocument();
+    expect(screen.getByText("Team Member Spend (RUB)")).toBeInTheDocument();
+    expect(screen.getByText("Team Member Budget (RUB)")).toBeInTheDocument();
     expect(screen.getByText("Team Member Rate Limits")).toBeInTheDocument();
     expect(screen.getByText("Actions")).toBeInTheDocument();
   });

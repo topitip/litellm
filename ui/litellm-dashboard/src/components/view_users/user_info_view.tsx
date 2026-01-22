@@ -253,7 +253,7 @@ export default function UserInfoView({
               "-",
           },
           {
-            label: "Total Spend (USD)",
+            label: "Total Spend (RUB)",
             value:
               userData.user_info?.spend !== null && userData.user_info?.spend !== undefined
                 ? userData.user_info.spend.toFixed(2)

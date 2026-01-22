@@ -27,6 +27,7 @@ import { Tab, TabGroup, TabList, TabPanels, TabPanel, Switch } from "@tremor/rea
 import AuditLogs from "./audit_logs";
 import { getTimeRangeDisplay } from "./logs_utils";
 import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import { truncateString } from "@/utils/textUtils";
 import DeletedKeysPage from "../DeletedKeysPage/DeletedKeysPage";
 import DeletedTeamsPage from "../DeletedTeamsPage/DeletedTeamsPage";
@@ -927,7 +928,7 @@ export function RequestViewer({ row }: { row: Row<LogEntry> }) {
             </div>
             <div className="flex">
               <span className="font-medium w-1/3">Cost:</span>
-              <span>${formatNumberWithCommas(row.original.spend || 0, 6)}</span>
+              <span>{formatRubles(row.original.spend || 0, 6)}</span>
             </div>
             <div className="flex">
               <span className="font-medium w-1/3">Cache Hit:</span>

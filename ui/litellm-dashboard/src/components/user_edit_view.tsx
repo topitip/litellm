@@ -138,7 +138,7 @@ export function UserEditView({
         </Select>
       </Form.Item>
 
-      <Form.Item label="Max Budget (USD)" name="max_budget">
+      <Form.Item label="Max Budget (RUB)" name="max_budget">
         <NumericalInput step={0.01} precision={2} style={{ width: "100%" }} />
       </Form.Item>
 

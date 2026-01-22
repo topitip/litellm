@@ -28,7 +28,7 @@ describe("TopModelView", () => {
   it("should display all table column headers", () => {
     render(<TopModelView topModels={[]} topModelsLimit={5} setTopModelsLimit={mockSetTopModelsLimit} />);
     expect(screen.getByText("Model")).toBeInTheDocument();
-    expect(screen.getByText("Spend (USD)")).toBeInTheDocument();
+    expect(screen.getByText("Spend")).toBeInTheDocument();
     expect(screen.getByText("Successful")).toBeInTheDocument();
     expect(screen.getByText("Failed")).toBeInTheDocument();
     expect(screen.getByText("Tokens")).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe("TopModelView", () => {
       />,
     );
     expect(screen.getByText("gpt-4")).toBeInTheDocument();
-    expect(screen.getByText("$150.50")).toBeInTheDocument();
+    expect(screen.getByText("150.50 ₽")).toBeInTheDocument();
     expect(screen.getByText("100")).toBeInTheDocument();
     const failedRequestsCell = screen
       .getAllByText("5")
@@ -156,7 +156,7 @@ describe("TopModelView", () => {
         setTopModelsLimit={mockSetTopModelsLimit}
       />,
     );
-    expect(screen.getByText("$123.46")).toBeInTheDocument();
+    expect(screen.getByText("123.46 ₽")).toBeInTheDocument();
   });
 
   it("should display zero values correctly", () => {
@@ -175,7 +175,7 @@ describe("TopModelView", () => {
         setTopModelsLimit={mockSetTopModelsLimit}
       />,
     );
-    expect(screen.getByText("$0.00")).toBeInTheDocument();
+    expect(screen.getByText("0.00 ₽")).toBeInTheDocument();
     expect(screen.getAllByText("0").length).toBeGreaterThan(0);
   });
 
@@ -243,7 +243,7 @@ describe("TopModelView", () => {
   it("should handle empty model list", () => {
     render(<TopModelView topModels={[]} topModelsLimit={5} setTopModelsLimit={mockSetTopModelsLimit} />);
     expect(screen.getByText("Model")).toBeInTheDocument();
-    expect(screen.getByText("Spend (USD)")).toBeInTheDocument();
+    expect(screen.getByText("Spend")).toBeInTheDocument();
   });
 
   it("should display dash for missing model key", () => {

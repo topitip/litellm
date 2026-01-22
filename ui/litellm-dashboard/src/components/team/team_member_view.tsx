@@ -107,12 +107,12 @@ const TeamMembersComponent: React.FC<TeamMembersComponentProps> = ({
                 <TableHeaderCell>User Email</TableHeaderCell>
                 <TableHeaderCell>Role</TableHeaderCell>
                 <TableHeaderCell>
-                  Team Member Spend (USD){" "}
+                  Team Member Spend (RUB){" "}
                   <Tooltip title="This is the amount spent by a user in the team.">
                     <InfoCircleOutlined />
                   </Tooltip>
                 </TableHeaderCell>
-                <TableHeaderCell>Team Member Budget (USD)</TableHeaderCell>
+                <TableHeaderCell>Team Member Budget (RUB)</TableHeaderCell>
                 <TableHeaderCell>
                   Team Member Rate Limits{" "}
                   <Tooltip title="Rate limits for this member's usage within this team.">

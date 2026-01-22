@@ -1,5 +1,5 @@
 "use client";
-import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import { ChevronDownIcon, ChevronUpIcon, SwitchVerticalIcon } from "@heroicons/react/outline";
 import {
   ColumnDef,
@@ -95,14 +95,14 @@ export function DeletedTeamsTable({
     {
       id: "spend",
       accessorKey: "spend",
-      header: "Spend (USD)",
+      header: "Spend (RUB)",
       size: 100,
       maxSize: 140,
       cell: (info) => {
         const spend = (info.row.original as any).spend as number | undefined;
         return (
           <span className="block max-w-[140px]">
-            {spend !== undefined ? formatNumberWithCommas(spend, 4) : "-"}
+            {spend !== undefined ? formatRubles(spend, 4) : "-"}
           </span>
         );
       },
@@ -110,14 +110,14 @@ export function DeletedTeamsTable({
     {
       id: "max_budget",
       accessorKey: "max_budget",
-      header: "Budget (USD)",
+      header: "Budget (RUB)",
       size: 110,
       maxSize: 150,
       cell: (info) => {
         const maxBudget = info.getValue() as number | null;
         return (
           <span className="block max-w-[150px]">
-            {maxBudget === null || maxBudget === undefined ? "No limit" : `$${formatNumberWithCommas(maxBudget)}`}
+            {maxBudget === null || maxBudget === undefined ? "No limit" : formatRubles(maxBudget)}
           </span>
         );
       },

@@ -5,7 +5,7 @@ import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { getInternalUserSettings, updateInternalUserSettings, modelAvailableCall } from "./networking";
 import BudgetDurationDropdown, { getBudgetDurationLabel } from "./common_components/budget_duration_dropdown";
 import { getModelDisplayName } from "./key_team_helpers/fetch_available_models_team_key";
-import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import NotificationManager from "./molecules/notifications_manager";
 
 interface DefaultUserSettingsProps {
@@ -340,7 +340,7 @@ const DefaultUserSettings: React.FC<DefaultUserSettingsProps> = ({
                   <span className="font-medium text-gray-600">Max Budget:</span>
                   <p className="text-gray-900">
                     {team.max_budget_in_team !== undefined
-                      ? `$${formatNumberWithCommas(team.max_budget_in_team, 4)}`
+                      ? formatRubles(team.max_budget_in_team, 4)
                       : "No limit"}
                   </p>
                 </div>

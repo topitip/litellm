@@ -18,6 +18,7 @@ import {
   TabPanels,
 } from "@tremor/react";
 import { perUserAnalyticsCall } from "./networking";
+import { formatRubles } from "../utils/currencyUtils";
 
 interface PerUserMetrics {
   user_id: string;
@@ -141,7 +142,7 @@ const PerUserUsage: React.FC<PerUserUsageProps> = ({ accessToken, selectedTags, 
                       <Text>{formatAbbreviatedNumber(item.failed_requests)}</Text>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Text>${formatAbbreviatedNumber(item.spend, 4)}</Text>
+                      <Text>{formatRubles(item.spend, 4)}</Text>
                     </TableCell>
                   </TableRow>
                 ))}

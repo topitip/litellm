@@ -277,8 +277,8 @@ const OrganizationsTable: React.FC<OrganizationsTableProps> = ({
                               <TableHeaderCell>Organization ID</TableHeaderCell>
                               <TableHeaderCell>Organization Name</TableHeaderCell>
                               <TableHeaderCell>Created</TableHeaderCell>
-                              <TableHeaderCell>Spend (USD)</TableHeaderCell>
-                              <TableHeaderCell>Budget (USD)</TableHeaderCell>
+                              <TableHeaderCell>Spend (RUB)</TableHeaderCell>
+                              <TableHeaderCell>Budget (RUB)</TableHeaderCell>
                               <TableHeaderCell>Models</TableHeaderCell>
                               <TableHeaderCell>TPM / RPM Limits</TableHeaderCell>
                               <TableHeaderCell>Info</TableHeaderCell>
@@ -482,7 +482,7 @@ const OrganizationsTable: React.FC<OrganizationsTableProps> = ({
             />
           </Form.Item>
 
-          <Form.Item label="Max Budget (USD)" name="max_budget">
+          <Form.Item label="Max Budget (RUB)" name="max_budget">
             <NumericalInput step={0.01} precision={2} width={200} />
           </Form.Item>
           <Form.Item label="Reset Budget" name="budget_duration">

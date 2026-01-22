@@ -1,6 +1,6 @@
 "use client";
 import { useKeys } from "@/app/(dashboard)/hooks/keys/useKeys";
-import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon, SwitchVerticalIcon } from "@heroicons/react/outline";
 import {
   ColumnDef,
@@ -275,21 +275,21 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
     {
       id: "spend",
       accessorKey: "spend",
-      header: "Spend (USD)",
+      header: "Spend (RUB)",
       size: 100,
-      cell: (info) => formatNumberWithCommas(info.getValue() as number, 4),
+      cell: (info) => formatRubles(info.getValue() as number, 4),
     },
     {
       id: "max_budget",
       accessorKey: "max_budget",
-      header: "Budget (USD)",
+      header: "Budget (RUB)",
       size: 110,
       cell: (info) => {
         const maxBudget = info.getValue() as number | null;
         if (maxBudget === null) {
           return "Unlimited";
         }
-        return `$${formatNumberWithCommas(maxBudget)}`;
+        return formatRubles(maxBudget);
       },
     },
     {

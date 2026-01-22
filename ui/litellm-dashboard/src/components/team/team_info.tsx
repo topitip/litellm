@@ -12,6 +12,7 @@ import {
   teamUpdateCall,
 } from "@/components/networking";
 import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import { mapEmptyStringToNull } from "@/utils/keyUpdateUtils";
 import { isProxyAdminRole } from "@/utils/roles";
 import { InfoCircleOutlined } from "@ant-design/icons";
@@ -551,7 +552,7 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
               <Card>
                 <Text>Budget Status</Text>
                 <div className="mt-2">
-                  <Title>${formatNumberWithCommas(info.spend, 4)}</Title>
+                  <Title>{formatRubles(info.spend, 4)}</Title>
                   <Text>
                     of {info.max_budget === null ? "Unlimited" : `$${formatNumberWithCommas(info.max_budget, 4)}`}
                   </Text>
@@ -714,12 +715,12 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
                     />
                   </Form.Item>
 
-                  <Form.Item label="Max Budget (USD)" name="max_budget">
+                  <Form.Item label="Max Budget (RUB)" name="max_budget">
                     <NumericalInput step={0.01} precision={2} style={{ width: "100%" }} />
                   </Form.Item>
 
                   <Form.Item
-                    label="Team Member Budget (USD)"
+                    label="Team Member Budget (RUB)"
                     name="team_member_budget"
                     tooltip="This is the individual budget for a user in the team."
                   >
@@ -1050,8 +1051,8 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
               name: "max_budget_in_team",
               label: (
                 <span>
-                  Team Member Budget (USD){" "}
-                  <Tooltip title="Maximum amount in USD this member can spend within this team. This is separate from any global user budget limits">
+                  Team Member Budget (RUB){" "}
+                  <Tooltip title="Maximum amount in RUB this member can spend within this team. This is separate from any global user budget limits">
                     <InfoCircleOutlined style={{ marginLeft: "4px" }} />
                   </Tooltip>
                 </span>

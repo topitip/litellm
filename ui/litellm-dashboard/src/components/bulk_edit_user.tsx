@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { formatRubles } from "@/utils/currencyUtils";
 import {
   Modal,
   Typography,
@@ -283,7 +284,7 @@ const BulkEditUserModal: React.FC<BulkEditUserModalProps> = ({
                 key: "max_budget",
                 width: "20%",
                 render: (budget: number | null) => (
-                  <Text style={{ fontSize: "12px" }}>{budget !== null ? `$${budget}` : "Unlimited"}</Text>
+                  <Text style={{ fontSize: "12px" }}>{budget !== null ? formatRubles(budget) : "Unlimited"}</Text>
                 ),
               },
             ]}

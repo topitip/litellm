@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formatRubles } from "@/utils/currencyUtils";
 import {
   Card,
   Text,
@@ -176,8 +177,8 @@ const TagInfoView: React.FC<TagInfoViewProps> = ({ tagId, onClose, accessToken, 
                 <Form.Item
                   label={
                     <span>
-                      Max Budget (USD){" "}
-                      <Tooltip title="Maximum amount in USD this tag can spend">
+                      Max Budget (RUB){" "}
+                      <Tooltip title="Maximum amount in RUB this tag can spend">
                         <InfoCircleOutlined style={{ marginLeft: "4px" }} />
                       </Tooltip>
                     </span>
@@ -270,7 +271,7 @@ const TagInfoView: React.FC<TagInfoViewProps> = ({ tagId, onClose, accessToken, 
                   tagDetails.litellm_budget_table.max_budget !== null && (
                     <div>
                       <Text className="font-medium">Max Budget</Text>
-                      <Text>${tagDetails.litellm_budget_table.max_budget}</Text>
+                      <Text>{formatRubles(tagDetails.litellm_budget_table.max_budget)}</Text>
                     </div>
                   )}
                 {tagDetails.litellm_budget_table.budget_duration && (

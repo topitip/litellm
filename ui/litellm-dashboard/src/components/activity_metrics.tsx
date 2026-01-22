@@ -1,4 +1,4 @@
-import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 import { resolveTeamAliasFromTeamID } from "@/utils/teamUtils";
 import { AreaChart, BarChart, Card, Grid, Text, Title } from "@tremor/react";
 import { Collapse } from "antd";
@@ -41,9 +41,9 @@ const ModelSection = ({
         </Card>
         <Card>
           <Text>Total Spend</Text>
-          <Title>${formatNumberWithCommas(metrics.total_spend, 2)}</Title>
+          <Title>{formatRubles(metrics.total_spend, 2)}</Title>
           <Text>
-            ${formatNumberWithCommas(metrics.total_spend / metrics.total_successful_requests, 3)} per successful request
+            {formatRubles(metrics.total_spend / metrics.total_successful_requests, 3)} per successful request
           </Text>
         </Card>
       </Grid>
@@ -60,7 +60,7 @@ const ModelSection = ({
                     {keyData.team_id && <Text className="text-xs text-gray-500">Team: {keyData.team_id}</Text>}
                   </div>
                   <div className="text-right">
-                    <Text className="font-medium">${formatNumberWithCommas(keyData.spend, 2)}</Text>
+                    <Text className="font-medium">{formatRubles(keyData.spend, 2)}</Text>
                     <Text className="text-xs text-gray-500">
                       {keyData.requests.toLocaleString()} requests | {keyData.tokens.toLocaleString()} tokens
                     </Text>
@@ -122,7 +122,7 @@ const ModelSection = ({
             index="date"
             categories={["metrics.spend"]}
             colors={["green"]}
-            valueFormatter={(value: number) => `$${formatNumberWithCommas(value, 2, true)}`}
+            valueFormatter={(value: number) => formatRubles(value, 2)}
             yAxisWidth={72}
           />
         </Card>
@@ -269,9 +269,9 @@ export const ActivityMetrics: React.FC<ActivityMetricsProps> = ({ modelMetrics, 
             <Title>{totalMetrics.total_tokens.toLocaleString()}</Title>
           </Card>
           <Card>
-            <Text>Total Spend</Text>
-            <Title>${formatNumberWithCommas(totalMetrics.total_spend, 2)}</Title>
-          </Card>
+           <Text>Total Spend</Text>
+           <Title>{formatRubles(totalMetrics.total_spend, 2)}</Title>
+         </Card>
         </Grid>
 
         <Grid numItems={2} className="gap-4">
@@ -325,7 +325,7 @@ export const ActivityMetrics: React.FC<ActivityMetricsProps> = ({ modelMetrics, 
               <div className="flex justify-between items-center w-full">
                 <Title>{modelMetrics[modelName].label || "Unknown Item"}</Title>
                 <div className="flex space-x-4 text-sm text-gray-500">
-                  <span>${formatNumberWithCommas(modelMetrics[modelName].total_spend, 2)}</span>
+                  <span>{formatRubles(modelMetrics[modelName].total_spend, 2)}</span>
                   <span>{modelMetrics[modelName].total_requests.toLocaleString()} requests</span>
                 </div>
               </div>

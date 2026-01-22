@@ -7,6 +7,7 @@ import { AuditLogEntry, auditLogColumns } from "./columns";
 import { Text } from "@tremor/react";
 import { Team } from "../key_team_helpers/key_list";
 import { formatNumberWithCommas } from "@/utils/dataUtils";
+import { formatRubles } from "@/utils/currencyUtils";
 
 interface AuditLogsProps {
   accessToken: string | null;
@@ -318,7 +319,7 @@ export default function AuditLogs({
                 {changedKeys.includes("spend") && (
                   <p>
                     <strong>Spend:</strong>{" "}
-                    {value.spend !== undefined ? `$${formatNumberWithCommas(value.spend, 6)}` : "N/A"}
+                    {value.spend !== undefined ? formatRubles(value.spend, 6) : "N/A"}
                   </p>
                 )}
                 {changedKeys.includes("max_budget") && (

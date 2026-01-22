@@ -375,7 +375,7 @@ const CreateTeamModal = ({
             </Select2>
           </Form.Item>
 
-          <Form.Item label="Max Budget (USD)" name="max_budget">
+          <Form.Item label="Max Budget (RUB)" name="max_budget">
             <NumericalInput step={0.01} precision={2} width={200} />
           </Form.Item>
           <Form.Item className="mt-8" label="Reset Budget" name="budget_duration">
@@ -417,7 +417,7 @@ const CreateTeamModal = ({
                 />
               </Form.Item>
               <Form.Item
-                label="Team Member Budget (USD)"
+                label="Team Member Budget (RUB)"
                 name="team_member_budget"
                 normalize={(value) => (value ? Number(value) : undefined)}
                 tooltip="This is the individual budget for a user in the team."

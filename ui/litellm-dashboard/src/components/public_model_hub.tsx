@@ -5,6 +5,7 @@ import { Button, Card, Text, Title } from "@tremor/react";
 import { Modal, Select, Tabs, Tag, Tooltip } from "antd";
 import { Copy, Info } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
+import { formatRubles } from "@/utils/currencyUtils";
 import { ModelDataTable } from "./model_dashboard/table";
 import NotificationsManager from "./molecules/notifications_manager";
 import Navbar from "./navbar";
@@ -488,7 +489,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
   };
 
   const formatCost = (cost: number) => {
-    return `$${(cost * 1_000_000).toFixed(4)}`;
+    return formatRubles(cost * 1_000_000, 4);
   };
 
   const formatTokens = (tokens: number | undefined) => {

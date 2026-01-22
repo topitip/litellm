@@ -164,7 +164,7 @@ describe("EntityUsage", () => {
     expect(screen.getByText("Total Spend")).toBeInTheDocument();
 
     await waitFor(() => {
-      const spendElements = screen.getAllByText("$100.50");
+      const spendElements = screen.getAllByText("100.50 ₽");
       expect(spendElements.length).toBeGreaterThan(0);
     });
 
@@ -182,7 +182,7 @@ describe("EntityUsage", () => {
     expect(screen.getByText("Team Spend Overview")).toBeInTheDocument();
 
     await waitFor(() => {
-      const spendElements = screen.getAllByText("$100.50");
+      const spendElements = screen.getAllByText("100.50 ₽");
       expect(spendElements.length).toBeGreaterThan(0);
     });
   });
@@ -197,7 +197,7 @@ describe("EntityUsage", () => {
     expect(screen.getByText("Organization Spend Overview")).toBeInTheDocument();
 
     await waitFor(() => {
-      const spendElements = screen.getAllByText("$100.50");
+      const spendElements = screen.getAllByText("100.50 ₽");
       expect(spendElements.length).toBeGreaterThan(0);
     });
   });
@@ -212,7 +212,7 @@ describe("EntityUsage", () => {
     expect(screen.getByText("Customer Spend Overview")).toBeInTheDocument();
 
     await waitFor(() => {
-      const spendElements = screen.getAllByText("$100.50");
+      const spendElements = screen.getAllByText("100.50 ₽");
       expect(spendElements.length).toBeGreaterThan(0);
     });
   });
@@ -227,7 +227,7 @@ describe("EntityUsage", () => {
     expect(screen.getByText("Agent Spend Overview")).toBeInTheDocument();
 
     await waitFor(() => {
-      const spendElements = screen.getAllByText("$100.50");
+      const spendElements = screen.getAllByText("100.50 ₽");
       expect(spendElements.length).toBeGreaterThan(0);
     });
   });
@@ -277,7 +277,7 @@ describe("EntityUsage", () => {
     });
 
     expect(await screen.findByText("Tag Spend Overview")).toBeInTheDocument();
-    expect(await screen.findByText("$0.00")).toBeInTheDocument();
+    expect(await screen.findByText("0.00 ₽")).toBeInTheDocument();
     expect(screen.getByText("Total Spend")).toBeInTheDocument();
     expect(screen.getAllByText("0")[0]).toBeInTheDocument();
   });

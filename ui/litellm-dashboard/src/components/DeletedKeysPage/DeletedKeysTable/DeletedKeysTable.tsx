@@ -112,7 +112,7 @@ export function DeletedKeysTable({
     {
       id: "spend",
       accessorKey: "spend",
-      header: "Spend (USD)",
+      header: "Spend (RUB)",
       size: 100,
       maxSize: 140,
       cell: (info) => (
@@ -124,7 +124,7 @@ export function DeletedKeysTable({
     {
       id: "max_budget",
       accessorKey: "max_budget",
-      header: "Budget (USD)",
+      header: "Budget (RUB)",
       size: 110,
       maxSize: 150,
       cell: (info) => {

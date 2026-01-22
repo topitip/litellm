@@ -6545,7 +6545,7 @@ class Router:
                 model_info = None
 
             # Parse cost values from litellm_params and model_info (handle string values)
-            def parse_cost_value(value: any) -> Optional[float]:
+            def parse_cost_value(value: Any) -> Optional[float]:
                 """Safely parse cost value from string or number"""
                 from math import isfinite
                 import re
@@ -6655,16 +6655,44 @@ class Router:
             model_info["input_cost_per_token"] = input_cost_with_margin
             model_info["output_cost_per_token"] = output_cost_with_margin
 
+            # Get mode from different sources (priority: litellm_params > model_info_dict > existing model_info > get_model_info > default)
+            mode = None
+            # Check litellm_params first
+            if model_litellm_params.get("mode") is not None:
+                mode = model_litellm_params.get("mode")
+            # Then check model_info_dict from database
+            elif model_info_dict.get("mode") is not None:
+                mode = model_info_dict.get("mode")
+            # Then check existing model_info
+            elif model_info is not None and isinstance(model_info, dict) and model_info.get("mode") is not None:
+                mode = model_info.get("mode")
+            # Try to get from litellm.get_model_info
+            if mode is None:
+                try:
+                    litellm_model_info = litellm.get_model_info(
+                        model=litellm_model, custom_llm_provider=llm_provider
+                    )
+                    if litellm_model_info and litellm_model_info.get("mode"):
+                        mode = litellm_model_info.get("mode")
+                except Exception:
+                    pass
+            # Default to "chat" if still None
+            if mode is None:
+                mode = "chat"
+            
+            # Update model_info with mode
             if model_info is None:
+                model_info = {}
+            elif not isinstance(model_info, dict):
+                model_info = model_info.model_dump() if hasattr(model_info, "model_dump") else dict(model_info)
+            model_info["mode"] = mode
+
+            if model_info is None or (isinstance(model_info, dict) and not model_info):
                 supported_openai_params = litellm.get_supported_openai_params(
                     model=litellm_model, custom_llm_provider=llm_provider
                 )
                 if supported_openai_params is None:
                     supported_openai_params = []
-
-                # Get mode from database model_info if available, otherwise default to "chat"
-                db_model_info = model.get("model_info", {})
-                mode = db_model_info.get("mode", "chat")
 
                 model_info = ModelMapInfo(
                     key=model_group,
@@ -6674,7 +6702,7 @@ class Router:
                     input_cost_per_token=0,
                     output_cost_per_token=0,
                     litellm_provider=llm_provider,
-                    mode=mode,
+                    mode=mode,  # Use mode we already determined above
                     supported_openai_params=supported_openai_params,
                     supports_system_messages=None,
                 )
@@ -6733,6 +6761,10 @@ class Router:
                     model_group_info.output_cost_per_token = model_info[
                         "output_cost_per_token"
                     ]
+                # Update mode if not set or if current mode is default "chat" and new mode is different
+                if model_info.get("mode") is not None:
+                    if model_group_info.mode is None or model_group_info.mode == "chat":
+                        model_group_info.mode = model_info.get("mode")
                 if (
                     model_info.get("supports_parallel_function_calling", None)
                     is not None

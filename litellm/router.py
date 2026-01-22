@@ -6544,6 +6544,65 @@ class Router:
             except Exception:
                 model_info = None
 
+            # Parse cost values from litellm_params and model_info (handle string values)
+            def parse_cost_value(value: any) -> Optional[float]:
+                """Safely parse cost value from string or number"""
+                from math import isfinite
+                import re
+                
+                if value is None:
+                    return None
+                if isinstance(value, (int, float)):
+                    if isfinite(value):
+                        return float(value)
+                    return None
+                if isinstance(value, str):
+                    # Handle incorrect scientific notation format (e.g., "1.34*e-05" -> "1.34e-05")
+                    cleaned = value.replace("*", "")
+                    # Try to extract a valid number pattern
+                    number_match = re.search(r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?", cleaned)
+                    if number_match:
+                        cleaned = number_match.group(0)
+                    else:
+                        # If no valid pattern found, try basic cleanup
+                        cleaned = re.sub(r"[^0-9.eE+-]", "", cleaned)
+                    try:
+                        parsed = float(cleaned)
+                        if isfinite(parsed):
+                            return parsed
+                    except (ValueError, TypeError):
+                        pass
+                return None
+
+            # Check for cost values in litellm_params first (user-defined pricing takes precedence)
+            input_cost_from_params = parse_cost_value(model_litellm_params.get("input_cost_per_token"))
+            output_cost_from_params = parse_cost_value(model_litellm_params.get("output_cost_per_token"))
+            
+            # Then check model_info from database
+            input_cost_from_info = parse_cost_value(model_info_dict.get("input_cost_per_token"))
+            output_cost_from_info = parse_cost_value(model_info_dict.get("output_cost_per_token"))
+
+            # Update model_info with parsed cost values if available
+            if model_info is None:
+                model_info = {}
+            elif not isinstance(model_info, dict):
+                model_info = model_info.model_dump() if hasattr(model_info, "model_dump") else dict(model_info)
+
+            # Set cost values: litellm_params takes precedence, then model_info, then existing model_info
+            if input_cost_from_params is not None:
+                model_info["input_cost_per_token"] = input_cost_from_params
+            elif input_cost_from_info is not None:
+                model_info["input_cost_per_token"] = input_cost_from_info
+            elif model_info.get("input_cost_per_token") is None:
+                model_info["input_cost_per_token"] = 0.0
+
+            if output_cost_from_params is not None:
+                model_info["output_cost_per_token"] = output_cost_from_params
+            elif output_cost_from_info is not None:
+                model_info["output_cost_per_token"] = output_cost_from_info
+            elif model_info.get("output_cost_per_token") is None:
+                model_info["output_cost_per_token"] = 0.0
+
             # get llm provider
             litellm_model, llm_provider = "", ""
             try:

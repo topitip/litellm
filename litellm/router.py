@@ -6615,6 +6615,46 @@ class Router:
                     "litellm.router.py::get_model_group_info() - {}".format(str(e))
                 )
 
+            # Apply margin to costs if margin config is set
+            def apply_margin_to_cost(base_cost: float, provider: str) -> float:
+                """Apply margin to base cost per token"""
+                if base_cost is None or base_cost == 0.0:
+                    return base_cost
+                
+                # Get margin config - check provider-specific first, then global
+                margin_config = None
+                if provider and provider in litellm.cost_margin_config:
+                    margin_config = litellm.cost_margin_config[provider]
+                elif "global" in litellm.cost_margin_config:
+                    margin_config = litellm.cost_margin_config["global"]
+                
+                if margin_config is not None:
+                    margin_total = 0.0
+                    if isinstance(margin_config, (int, float)):
+                        # Simple percentage
+                        margin_total = base_cost * float(margin_config)
+                    elif isinstance(margin_config, dict):
+                        # Complex config with percentage and/or fixed_amount
+                        if "percentage" in margin_config:
+                            margin_total += base_cost * float(margin_config["percentage"])
+                        # Note: fixed_amount is per request, not per token, so we don't apply it here
+                        # as we're calculating per-token cost
+                    
+                    return base_cost + margin_total
+                
+                return base_cost
+
+            # Apply margin to input and output costs
+            input_cost_with_margin = apply_margin_to_cost(
+                model_info.get("input_cost_per_token", 0.0), llm_provider
+            )
+            output_cost_with_margin = apply_margin_to_cost(
+                model_info.get("output_cost_per_token", 0.0), llm_provider
+            )
+            
+            model_info["input_cost_per_token"] = input_cost_with_margin
+            model_info["output_cost_per_token"] = output_cost_with_margin
+
             if model_info is None:
                 supported_openai_params = litellm.get_supported_openai_params(
                     model=litellm_model, custom_llm_provider=llm_provider

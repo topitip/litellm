@@ -530,8 +530,12 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
 
   const formatLimits = (rpm?: number, tpm?: number) => {
     const limits = [];
-    if (rpm) limits.push(`RPM: ${rpm.toLocaleString()}`);
-    if (tpm) limits.push(`TPM: ${tpm.toLocaleString()}`);
+    if (rpm != null && typeof rpm === "number" && !isNaN(rpm)) {
+      limits.push(`RPM: ${rpm.toLocaleString()}`);
+    }
+    if (tpm != null && typeof tpm === "number" && !isNaN(tpm)) {
+      limits.push(`TPM: ${tpm.toLocaleString()}`);
+    }
     return limits.length > 0 ? limits.join(", ") : "N/A";
   };
 
@@ -1446,13 +1450,13 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                 <div>
                   <Text className="text-lg font-semibold mb-4">Rate Limits</Text>
                   <div className="grid grid-cols-2 gap-4">
-                    {selectedModel.tpm && (
+                    {selectedModel.tpm != null && (
                       <div>
                         <Text className="font-medium">Tokens per Minute:</Text>
                         <Text>{selectedModel.tpm.toLocaleString()}</Text>
                       </div>
                     )}
-                    {selectedModel.rpm && (
+                    {selectedModel.rpm != null && (
                       <div>
                         <Text className="font-medium">Requests per Minute:</Text>
                         <Text>{selectedModel.rpm.toLocaleString()}</Text>

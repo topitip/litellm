@@ -9627,6 +9627,12 @@ async def get_config_general_settings(
     ### pop the value
 
     if db_general_settings is None or db_general_settings.param_value is None:
+        # If no general_settings in DB, return default value from ConfigGeneralSettings
+        default_settings = ConfigGeneralSettings()
+        if hasattr(default_settings, field_name):
+            return ConfigFieldInfo(
+                field_name=field_name, field_value=getattr(default_settings, field_name)
+            )
         raise HTTPException(
             status_code=400,
             detail={"error": "Field name={} not in DB".format(field_name)},
@@ -9639,6 +9645,12 @@ async def get_config_general_settings(
                 field_name=field_name, field_value=general_settings[field_name]
             )
         else:
+            # Field not in DB, return default value from ConfigGeneralSettings
+            default_settings = ConfigGeneralSettings()
+            if hasattr(default_settings, field_name):
+                return ConfigFieldInfo(
+                    field_name=field_name, field_value=getattr(default_settings, field_name)
+                )
             raise HTTPException(
                 status_code=400,
                 detail={"error": "Field name={} not in DB".format(field_name)},

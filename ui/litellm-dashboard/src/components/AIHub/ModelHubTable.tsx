@@ -614,13 +614,13 @@ const ModelHubTable: React.FC<ModelHubTableProps> = ({ accessToken, publicPage, 
               <div>
                 <Text className="text-lg font-semibold mb-4">Rate Limits</Text>
                 <div className="grid grid-cols-2 gap-4">
-                  {selectedModel.tpm && (
+                  {selectedModel.tpm != null && (
                     <div>
                       <Text className="font-medium">Tokens per Minute:</Text>
                       <Text>{selectedModel.tpm.toLocaleString()}</Text>
                     </div>
                   )}
-                  {selectedModel.rpm && (
+                  {selectedModel.rpm != null && (
                     <div>
                       <Text className="font-medium">Requests per Minute:</Text>
                       <Text>{selectedModel.rpm.toLocaleString()}</Text>

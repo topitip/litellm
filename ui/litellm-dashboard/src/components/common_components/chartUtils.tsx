@@ -46,7 +46,7 @@ export const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) =>
           const rawValue = getRawValue(item.payload, dataKey);
           const isSpend = dataKey.includes("spend");
           const formattedValue =
-            rawValue !== undefined
+            rawValue != null && typeof rawValue === "number" && !isNaN(rawValue)
               ? isSpend
                 ? `$${rawValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 : rawValue.toLocaleString()

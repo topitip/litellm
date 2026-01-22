@@ -69,7 +69,17 @@ async def get_marketplace():
         ```
     """
     try:
-        prisma_client = await _get_prisma_client()
+        from litellm.proxy.proxy_server import prisma_client
+
+        # If database is not available, return empty marketplace instead of error
+        if prisma_client is None:
+            verbose_proxy_logger.warning("Database not available, returning empty marketplace")
+            marketplace = {
+                "name": "litellm",
+                "owner": {"name": "LiteLLM", "email": "support@litellm.ai"},
+                "plugins": [],
+            }
+            return JSONResponse(content=marketplace)
 
         plugins = await prisma_client.db.litellm_claudecodeplugintable.find_many(
             where={"enabled": True}
@@ -78,15 +88,27 @@ async def get_marketplace():
         plugin_list = []
         for plugin in plugins:
             try:
+                # Handle None or empty manifest_json
+                if not plugin.manifest_json:
+                    verbose_proxy_logger.warning(
+                        f"Plugin {plugin.name} has no manifest JSON, skipping"
+                    )
+                    continue
+
                 manifest = json.loads(plugin.manifest_json)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 verbose_proxy_logger.warning(
-                    f"Plugin {plugin.name} has invalid manifest JSON, skipping"
+                    f"Plugin {plugin.name} has invalid manifest JSON: {e}, skipping"
+                )
+                continue
+            except Exception as e:
+                verbose_proxy_logger.warning(
+                    f"Error parsing manifest for plugin {plugin.name}: {e}, skipping"
                 )
                 continue
 
             # Source must be specified for URL-based marketplaces
-            if "source" not in manifest:
+            if not isinstance(manifest, dict) or "source" not in manifest:
                 verbose_proxy_logger.warning(
                     f"Plugin {plugin.name} has no source field, skipping"
                 )
@@ -124,10 +146,13 @@ async def get_marketplace():
         raise
     except Exception as e:
         verbose_proxy_logger.exception(f"Error generating marketplace: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail={"error": f"Failed to generate marketplace: {str(e)}"},
-        )
+        # Return empty marketplace instead of 500 error for better UX
+        marketplace = {
+            "name": "litellm",
+            "owner": {"name": "LiteLLM", "email": "support@litellm.ai"},
+            "plugins": [],
+        }
+        return JSONResponse(content=marketplace)
 
 
 @router.post(

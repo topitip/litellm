@@ -63,8 +63,12 @@ const formatTokens = (tokens: number | undefined) => {
 
 const formatLimits = (rpm?: number, tpm?: number) => {
   const limits = [];
-  if (rpm) limits.push(`RPM: ${rpm.toLocaleString()}`);
-  if (tpm) limits.push(`TPM: ${tpm.toLocaleString()}`);
+  if (rpm != null && typeof rpm === "number" && !isNaN(rpm)) {
+    limits.push(`RPM: ${rpm.toLocaleString()}`);
+  }
+  if (tpm != null && typeof tpm === "number" && !isNaN(tpm)) {
+    limits.push(`TPM: ${tpm.toLocaleString()}`);
+  }
   return limits.length > 0 ? limits.join(", ") : "N/A";
 };
 

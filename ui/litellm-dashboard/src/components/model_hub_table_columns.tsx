@@ -101,39 +101,8 @@ export const modelHubColumns = (
                 />
               </Tooltip>
             </div>
-            {/* Show provider on mobile when provider column is hidden */}
-            <div className="md:hidden">
-              <Text className="text-xs text-gray-600">{model.providers.join(", ")}</Text>
-            </div>
           </div>
         );
-      },
-    },
-    {
-      header: "Provider",
-      accessorKey: "providers",
-      enableSorting: true,
-      sortingFn: (rowA, rowB) => {
-        const providersA = rowA.original.providers.join(", ");
-        const providersB = rowB.original.providers.join(", ");
-        return providersA.localeCompare(providersB);
-      },
-      cell: ({ row }) => {
-        const model = row.original;
-
-        return (
-          <div className="flex flex-wrap gap-1">
-            {model.providers.slice(0, 2).map((provider) => (
-              <Tag key={provider} color="blue" className="text-xs">
-                {provider}
-              </Tag>
-            ))}
-            {model.providers.length > 2 && <Text className="text-xs text-gray-500">+{model.providers.length - 2}</Text>}
-          </div>
-        );
-      },
-      meta: {
-        className: "hidden md:table-cell",
       },
     },
     {

@@ -561,38 +561,6 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
       size: 150,
     },
     {
-      header: "Providers",
-      accessorKey: "providers",
-      enableSorting: true,
-      cell: ({ row }) => {
-        const providers = row.original.providers;
-
-        return (
-          <div className="flex flex-wrap gap-1">
-            {providers.map((provider) => {
-              const { logo } = getProviderLogoAndName(provider);
-              return (
-                <div key={provider} className="flex items-center space-x-1 px-2 py-1 bg-gray-100 rounded text-xs">
-                  {logo && (
-                    <img
-                      src={logo}
-                      alt={provider}
-                      className="w-3 h-3 flex-shrink-0 object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  )}
-                  <span className="capitalize">{provider}</span>
-                </div>
-              );
-            })}
-          </div>
-        );
-      },
-      size: 120,
-    },
-    {
       header: "Mode",
       accessorKey: "mode",
       enableSorting: true,
@@ -1344,35 +1312,10 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                     <Text className="font-medium">Model Name:</Text>
                     <Text>{selectedModel.model_group}</Text>
                   </div>
-                  <div>
-                    <Text className="font-medium">Mode:</Text>
-                    <Text>{selectedModel.mode || "Not specified"}</Text>
-                  </div>
-                  <div>
-                    <Text className="font-medium">Providers:</Text>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedModel.providers.map((provider) => {
-                        const { logo } = getProviderLogoAndName(provider);
-                        return (
-                          <Tag key={provider} color="blue">
-                            <div className="flex items-center space-x-1">
-                              {logo && (
-                                <img
-                                  src={logo}
-                                  alt={provider}
-                                  className="w-3 h-3 flex-shrink-0 object-contain"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = "none";
-                                  }}
-                                />
-                              )}
-                              <span className="capitalize">{provider}</span>
-                            </div>
-                          </Tag>
-                        );
-                      })}
-                    </div>
-                  </div>
+                <div>
+                  <Text className="font-medium">Mode:</Text>
+                  <Text>{selectedModel.mode || "Not specified"}</Text>
+                </div>
                 </div>
 
                 {/* Wildcard Routing Note */}

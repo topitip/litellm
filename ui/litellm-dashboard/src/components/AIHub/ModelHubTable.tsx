@@ -552,6 +552,16 @@ const ModelHubTable: React.FC<ModelHubTableProps> = ({ accessToken, publicPage, 
                   <Text className="font-medium">Mode:</Text>
                   <Text>{selectedModel.mode || "Not specified"}</Text>
                 </div>
+                <div>
+                  <Text className="font-medium">Providers:</Text>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedModel.providers.map((provider) => (
+                      <Badge key={provider} color="blue">
+                        {provider}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 

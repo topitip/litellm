@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, TypedDict, Union
 import httpx
 
 from litellm.litellm_core_utils.litellm_logging import Logging as LiteLLMLoggingObj
+from litellm.llms.base_llm.chat.transformation import BaseLLMException
 from litellm.llms.base_llm.search.transformation import (
     BaseSearchConfig,
     SearchResponse,
@@ -57,12 +58,21 @@ class SearXNGSearchConfig(BaseSearchConfig):
         Validate environment and return headers.
         SearXNG is open-source and doesn't require an API key by default.
         Some instances may require authentication via headers.
+        SearXNG's bot detection requires X-Real-IP or X-Forwarded-For headers.
         """
         # SearXNG typically doesn't require API keys, but support optional auth
         api_key = api_key or get_secret_str("SEARXNG_API_KEY")
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
         headers["Content-Type"] = "application/json"
+        
+        # SearXNG bot detection requires X-Real-IP or X-Forwarded-For header
+        # Set X-Real-IP if not already present
+        if "X-Real-IP" not in headers and "X-Forwarded-For" not in headers:
+            # Try to get from environment variable, otherwise use default
+            client_ip = get_secret_str("SEARXNG_CLIENT_IP") or "127.0.0.1"
+            headers["X-Real-IP"] = client_ip
+        
         return headers
 
     def get_complete_url(
@@ -197,7 +207,25 @@ class SearXNGSearchConfig(BaseSearchConfig):
         Returns:
             SearchResponse with standardized format
         """
-        response_json = raw_response.json()
+        # Check response status code
+        if raw_response.status_code >= 400:
+            response_text = raw_response.text[:500] if raw_response.text else "Empty response"
+            raise BaseLLMException(
+                status_code=raw_response.status_code,
+                message=f"SearXNG API returned error status {raw_response.status_code}: {response_text}",
+                headers=dict(raw_response.headers),
+            )
+        
+        # Parse JSON response with error handling
+        try:
+            response_json = raw_response.json()
+        except Exception as e:
+            response_text = raw_response.text[:500] if raw_response.text else "Empty response"
+            raise BaseLLMException(
+                status_code=raw_response.status_code,
+                message=f"Unable to parse JSON response from SearXNG API: {str(e)}. Response: {response_text}",
+                headers=dict(raw_response.headers),
+            )
         
         # Transform results to SearchResult objects
         # Note: SearXNG doesn't natively support limiting results via API params

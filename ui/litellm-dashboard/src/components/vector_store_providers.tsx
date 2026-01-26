@@ -5,6 +5,7 @@ export enum VectorStoreProviders {
   OpenAI = "OpenAI",
   Azure = "Azure OpenAI",
   Milvus = "Milvus",
+  Qdrant = "Qdrant",
 }
 
 export const vectorStoreProviderMap: Record<string, string> = {
@@ -14,6 +15,7 @@ export const vectorStoreProviderMap: Record<string, string> = {
   OpenAI: "openai",
   Azure: "azure",
   Milvus: "milvus",
+  Qdrant: "qdrant",
 };
 
 const asset_logos_folder = "../ui/assets/logos/";
@@ -25,6 +27,7 @@ export const vectorStoreProviderLogoMap: Record<string, string> = {
   [VectorStoreProviders.OpenAI]: `${asset_logos_folder}openai_small.svg`,
   [VectorStoreProviders.Azure]: `${asset_logos_folder}microsoft_azure.svg`,
   [VectorStoreProviders.Milvus]: `${asset_logos_folder}milvus.svg`,
+  [VectorStoreProviders.Qdrant]: `${asset_logos_folder}qdrant.svg`,
 };
 
 // Define field types for provider-specific configurations
@@ -109,6 +112,32 @@ export const vectorStoreProviderFields: Record<string, VectorStoreFieldConfig[]>
       name: "embedding_model",
       label: "Embedding Model",
       tooltip: "Select the embedding model to use",
+      placeholder: "text-embedding-3-small",
+      required: true,
+      type: "select",
+    },
+  ],
+  qdrant: [
+    {
+      name: "api_key",
+      label: "API Key",
+      tooltip: "Enter your Qdrant API key",
+      placeholder: "your-qdrant-api-key",
+      required: true,
+      type: "password",
+    },
+    {
+      name: "api_base",
+      label: "API Base",
+      tooltip: "Enter your Qdrant endpoint (e.g., https://your-cluster.qdrant.tech:6333 or https://cloud.qdrant.io)",
+      placeholder: "https://your-cluster.qdrant.tech:6333",
+      required: true,
+      type: "text",
+    },
+    {
+      name: "embedding_model",
+      label: "Embedding Model",
+      tooltip: "Select the embedding model to use for generating vectors",
       placeholder: "text-embedding-3-small",
       required: true,
       type: "select",

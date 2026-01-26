@@ -22,7 +22,7 @@ from litellm.proxy._experimental.mcp_server.utils import (
     LITELLM_MCP_SERVER_NAME,
     LITELLM_MCP_SERVER_VERSION,
 )
-from litellm.proxy._types import UserAPIKeyAuth
+from litellm.proxy._types import ProxyException, UserAPIKeyAuth
 from litellm.types.mcp import MCPAuth
 from litellm.types.mcp_server.mcp_server_manager import MCPInfo, MCPServer
 from litellm.types.utils import StandardLoggingMCPToolCall
@@ -1727,12 +1727,42 @@ if MCP_AVAILABLE:
                 await asyncio.sleep(0.1)
 
             await session_manager.handle_request(scope, receive, send)
-        except Exception as e:
-            raise e
+        except (HTTPException, ProxyException) as e:
             verbose_logger.exception(f"Error handling MCP request: {e}")
-            # Instead of re-raising, try to send a graceful error response
+            # Send a proper HTTP error response
             try:
-                # Send a proper HTTP error response instead of letting the exception bubble up
+                from starlette.responses import JSONResponse
+                
+                status_code = getattr(e, "status_code", 500)
+                if isinstance(e, ProxyException):
+                    detail = getattr(e, "message", str(e))
+                else:
+                    detail = getattr(e, "detail", str(e))
+                
+                error_response = JSONResponse(
+                    status_code=status_code,
+                    content={"error": detail},
+                )
+                await error_response(scope, receive, send)
+            except RuntimeError as runtime_error:
+                # If response already started, we can't send a new response
+                if "response already started" in str(runtime_error):
+                    verbose_logger.warning(
+                        f"Error occurred but response already started: {e}. "
+                        "This usually means an error occurred in middleware after response started."
+                    )
+                    raise e
+                raise runtime_error
+            except Exception as response_error:
+                verbose_logger.exception(
+                    f"Failed to send error response: {response_error}"
+                )
+                # If we can't send a proper response, re-raise the original error
+                raise e
+        except Exception as e:
+            verbose_logger.exception(f"Error handling MCP request: {e}")
+            # Try to send a graceful error response
+            try:
                 from starlette.responses import JSONResponse
                 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -1741,6 +1771,15 @@ if MCP_AVAILABLE:
                     content={"error": "MCP request failed", "details": str(e)},
                 )
                 await error_response(scope, receive, send)
+            except RuntimeError as runtime_error:
+                # If response already started, we can't send a new response
+                if "response already started" in str(runtime_error):
+                    verbose_logger.warning(
+                        f"Error occurred but response already started: {e}. "
+                        "This usually means an error occurred in middleware after response started."
+                    )
+                    raise e
+                raise runtime_error
             except Exception as response_error:
                 verbose_logger.exception(
                     f"Failed to send error response: {response_error}"

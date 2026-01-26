@@ -1073,9 +1073,25 @@ def create_pass_through_route(
     query_params: Optional[dict] = None,
     guardrails: Optional[Dict[str, Any]] = None,
 ):
+    """Create a FastAPI route function for a pass‑through endpoint.
+
+    The original implementation always added ``Depends(user_api_key_auth)`` to the
+    endpoint signature, which meant that authentication was enforced even when
+    the endpoint configuration specified ``"auth": false``.  To respect the
+    ``auth`` flag we now accept a ``dependencies`` argument – this is the list of
+    FastAPI dependencies that should be applied to the route.  When ``auth`` is
+    disabled ``dependencies`` will be ``None`` (or an empty list) and the route
+    will be created **without** the ``user_api_key_auth`` dependency.  When
+    authentication is required the caller passes ``[Depends(user_api_key_auth)]``
+    and the dependency is injected as before.
+    """
+
     # check if target is an adapter.py or a url
     from litellm._uuid import uuid
     from litellm.proxy.types_utils.utils import get_instance_fn
+
+    # Normalise dependencies – FastAPI expects a list, ``None`` means no deps.
+    route_dependencies: List = dependencies or []
 
     try:
         if isinstance(target, CustomLogger):
@@ -1088,9 +1104,12 @@ def create_pass_through_route(
         async def endpoint_func(  # type: ignore
             request: Request,
             fastapi_response: Response,
-            user_api_key_dict: UserAPIKeyAuth = Depends(user_api_key_auth),
+            # Dynamically add the auth dependency only when it is present in the list.
+            user_api_key_dict: UserAPIKeyAuth = Depends(user_api_key_auth) if dependencies else None,  # type: ignore
             subpath: str = "",  # captures sub-paths when include_subpath=True
         ):
+            # If authentication is required ``user_api_key_dict`` will be a
+            # ``UserAPIKeyAuth`` instance; otherwise it will be ``None``.
             return await chat_completion_pass_through_endpoint(
                 fastapi_response=fastapi_response,
                 request=request,
@@ -1104,7 +1123,7 @@ def create_pass_through_route(
         async def endpoint_func(  # type: ignore
             request: Request,
             fastapi_response: Response,
-            user_api_key_dict: UserAPIKeyAuth = Depends(user_api_key_auth),
+            user_api_key_dict: UserAPIKeyAuth = Depends(user_api_key_auth) if dependencies else None,  # type: ignore
             subpath: str = "",  # captures sub-paths when include_subpath=True
         ):
             from litellm.proxy.pass_through_endpoints.pass_through_endpoints import (

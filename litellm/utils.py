@@ -7675,7 +7675,9 @@ def validate_and_fix_openai_messages(messages: List):
 
 def validate_and_fix_openai_tools(tools: Optional[List]) -> Optional[List[dict]]:
     """
-    Ensure tools is List[dict] and not List[BaseModel]
+    Ensure tools is List[dict] and not List[BaseModel].
+    Also fix invalid 'required' fields in tool parameter schemas
+    (e.g. {} instead of []) which can be produced by Pydantic's model_dump().
     """
     new_tools = []
     if tools is None:
@@ -7685,6 +7687,7 @@ def validate_and_fix_openai_tools(tools: Optional[List]) -> Optional[List[dict]]
             new_tools.append(tool.model_dump())
         elif isinstance(tool, dict):
             new_tools.append(tool)
+    _fix_schema_required_field(new_tools)
     return new_tools
 
 

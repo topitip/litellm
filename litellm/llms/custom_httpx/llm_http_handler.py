@@ -415,6 +415,25 @@ class BaseLLMHTTPHandler:
             headers=headers,
         )
 
+        # Fix empty tool parameters for providers that reject parameters: {}
+        # Some backends (e.g. Cloud.ru/foundation-models) require at minimum:
+        #   {"type": "object", "properties": {}}
+        if "tools" in data and isinstance(data["tools"], list):
+            for _tool in data["tools"]:
+                if isinstance(_tool, dict):
+                    _func = _tool.get("function")
+                    if isinstance(_func, dict):
+                        _params = _func.get("parameters")
+                        if _params is None or _params == {}:
+                            _func["parameters"] = {"type": "object", "properties": {}}
+                        elif isinstance(_params, dict):
+                            if "type" not in _params:
+                                _params["type"] = "object"
+                            if "properties" not in _params:
+                                _params["properties"] = {}
+                            if "required" in _params and not isinstance(_params["required"], list):
+                                _params["required"] = []
+
         if extra_body is not None:
             data = {**data, **extra_body}
 

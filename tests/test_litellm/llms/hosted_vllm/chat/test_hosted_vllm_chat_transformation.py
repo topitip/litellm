@@ -8,7 +8,7 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 
 from litellm.llms.hosted_vllm.chat.transformation import HostedVLLMChatConfig
-from litellm.utils import _fix_schema_required_field
+from litellm.utils import _fix_empty_parameters, _fix_schema_required_field
 
 
 def test_hosted_vllm_chat_transformation_file_url():
@@ -270,12 +270,99 @@ def test_fix_schema_required_field_valid_array_unchanged():
     assert result["required"] == ["name"]
 
 
+def test_fix_empty_parameters_empty_dict():
+    """
+    Test that _fix_empty_parameters converts parameters: {} to a valid schema.
+
+    Cloud.ru/foundation-models rejects parameters: {} and requires at minimum:
+        {"type": "object", "properties": {}}
+    """
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "test_tool",
+                "description": "A test tool",
+                "parameters": {},
+            },
+        }
+    ]
+    result = _fix_empty_parameters(tools)
+    params = result[0]["function"]["parameters"]
+    assert params["type"] == "object"
+    assert params["properties"] == {}
+
+
+def test_fix_empty_parameters_none():
+    """
+    Test that _fix_empty_parameters handles parameters: None.
+    """
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "test_tool",
+                "description": "A test tool",
+            },
+        }
+    ]
+    result = _fix_empty_parameters(tools)
+    params = result[0]["function"]["parameters"]
+    assert params["type"] == "object"
+    assert params["properties"] == {}
+
+
+def test_fix_empty_parameters_missing_type_or_properties():
+    """
+    Test that _fix_empty_parameters adds missing 'type' and 'properties' keys.
+    """
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "test_tool",
+                "parameters": {
+                    "required": ["foo"],
+                },
+            },
+        }
+    ]
+    result = _fix_empty_parameters(tools)
+    params = result[0]["function"]["parameters"]
+    assert params["type"] == "object"
+    assert params["properties"] == {}
+    assert params["required"] == ["foo"]
+
+
+def test_fix_empty_parameters_valid_unchanged():
+    """
+    Test that _fix_empty_parameters leaves valid parameters untouched.
+    """
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "test_tool",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
+    result = _fix_empty_parameters(tools)
+    params = result[0]["function"]["parameters"]
+    assert params["type"] == "object"
+    assert params["properties"] == {"location": {"type": "string"}}
+    assert params["required"] == ["location"]
+
+
 def test_hosted_vllm_tools_required_field_fixed():
     """
     Test that hosted_vllm transformation fixes invalid required fields in tools.
-
-    Reproduces the error:
-    "Tool 0 function has invalid 'parameters' schema: {} is not of type 'array'"
     """
     config = HostedVLLMChatConfig()
     tools = [
@@ -305,25 +392,22 @@ def test_hosted_vllm_tools_required_field_fixed():
     assert required_field == []
 
 
-def test_hosted_vllm_transform_request_fixes_required_field():
+def test_hosted_vllm_tools_empty_parameters_fixed():
     """
-    Test that transform_request fixes invalid required fields in tools
-    right before sending the request. This is the last line of defense.
+    Test that hosted_vllm transformation fixes empty parameters: {} in tools.
+
+    Reproduces the error:
+    "Tool 0 function has invalid 'parameters' schema: {} is not of type 'array'"
+    from Cloud.ru/foundation-models backend.
     """
     config = HostedVLLMChatConfig()
     tools = [
         {
             "type": "function",
             "function": {
-                "name": "get_weather",
-                "description": "Get the weather",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {"type": "string"},
-                    },
-                    "required": {},
-                },
+                "name": "do_something",
+                "description": "Does something",
+                "parameters": {},
             },
         }
     ]
@@ -334,9 +418,9 @@ def test_hosted_vllm_transform_request_fixes_required_field():
         litellm_params={},
         headers={},
     )
-    required_field = result["tools"][0]["function"]["parameters"]["required"]
-    assert isinstance(required_field, list)
-    assert required_field == []
+    params = result["tools"][0]["function"]["parameters"]
+    assert params["type"] == "object"
+    assert params["properties"] == {}
 
 
 def test_hosted_vllm_thinking_blocks_with_list_content():

@@ -16,17 +16,13 @@ from litellm.types.llms.openai import (
     ChatCompletionVideoUrlObject,
 )
 
-import json
-import logging
-
 from ....utils import (
+    _fix_empty_parameters,
     _fix_schema_required_field,
     _remove_additional_properties,
     _remove_strict_from_schema,
 )
 from ...openai.chat.gpt_transformation import OpenAIGPTConfig
-
-logger = logging.getLogger(__name__)
 
 
 class HostedVLLMChatConfig(OpenAIGPTConfig):
@@ -50,6 +46,8 @@ class HostedVLLMChatConfig(OpenAIGPTConfig):
             _tools = _remove_strict_from_schema(_tools)
             # fix 'required' fields that are not arrays (e.g. {} instead of [])
             _tools = _fix_schema_required_field(_tools)
+            # fix empty parameters: {} -> {"type": "object", "properties": {}}
+            _tools = _fix_empty_parameters(_tools)
         if _tools is not None:
             non_default_params["tools"] = _tools
 
@@ -85,33 +83,20 @@ class HostedVLLMChatConfig(OpenAIGPTConfig):
         litellm_params: dict,
         headers: dict,
     ) -> dict:
-        # Fix 'required' fields right before sending - last line of defense
+        # Fix tool schemas right before sending - last line of defense
         tools = optional_params.get("tools")
         if tools is not None:
-            logger.error(
-                "VLLM_DEBUG transform_request BEFORE fix: tools=%s",
-                json.dumps(tools, default=str)[:2000],
-            )
             _remove_additional_properties(tools)
             _remove_strict_from_schema(tools)
             _fix_schema_required_field(tools)
-            logger.error(
-                "VLLM_DEBUG transform_request AFTER fix: tools=%s",
-                json.dumps(tools, default=str)[:2000],
-            )
-        result = super().transform_request(
+            _fix_empty_parameters(tools)
+        return super().transform_request(
             model=model,
             messages=messages,
             optional_params=optional_params,
             litellm_params=litellm_params,
             headers=headers,
         )
-        if "tools" in result:
-            logger.error(
-                "VLLM_DEBUG final request tools: %s",
-                json.dumps(result["tools"], default=str)[:2000],
-            )
-        return result
 
     def _get_openai_compatible_provider_info(
         self, api_base: Optional[str], api_key: Optional[str]

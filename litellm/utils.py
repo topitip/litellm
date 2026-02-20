@@ -3468,6 +3468,40 @@ def _fix_schema_required_field(schema):
     return schema
 
 
+def _fix_empty_parameters(tools):
+    """
+    Fix tool functions with empty or missing 'parameters' schema.
+
+    Some providers (e.g. Cloud.ru/foundation-models) strictly validate tool schemas
+    and reject parameters: {} — they require at minimum:
+        {"type": "object", "properties": {}}
+
+    This function ensures all tool function parameters have a valid schema.
+    """
+    if not isinstance(tools, list):
+        return tools
+
+    for tool in tools:
+        if not isinstance(tool, dict):
+            continue
+        func = tool.get("function")
+        if not isinstance(func, dict):
+            continue
+        params = func.get("parameters")
+        if params is None or params == {}:
+            func["parameters"] = {
+                "type": "object",
+                "properties": {},
+            }
+        elif isinstance(params, dict):
+            if "type" not in params:
+                params["type"] = "object"
+            if "properties" not in params:
+                params["properties"] = {}
+
+    return tools
+
+
 def _remove_additional_properties(schema):
     """
     clean out 'additionalProperties = False'. Causes vertexai/gemini OpenAI API Schema errors - https://github.com/langchain-ai/langchainjs/issues/5240

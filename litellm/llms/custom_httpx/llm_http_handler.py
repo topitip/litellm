@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -12,6 +13,8 @@ from typing import (
     Union,
     cast,
 )
+
+_debug_logger = logging.getLogger("litellm.debug.http_handler")
 
 import httpx  # type: ignore
 from openai.types.file_deleted import FileDeleted
@@ -172,6 +175,14 @@ class BaseLLMHTTPHandler:
         response: Optional[httpx.Response] = None
         for i in range(max(max_retry_on_unprocessable_entity_error, 1)):
             try:
+                # DEBUG: log tools in request before sending
+                if data and isinstance(data, dict) and "tools" in data:
+                    _tools = data["tools"]
+                    _debug_logger.error(
+                        "HTTP_DEBUG request to %s has tools: %s",
+                        api_base,
+                        json.dumps(_tools, default=str)[:3000],
+                    )
                 response = await async_httpx_client.post(
                     url=api_base,
                     headers=headers,
@@ -407,6 +418,12 @@ class BaseLLMHTTPHandler:
             litellm_params=litellm_params,
         )
 
+        _debug_logger.error(
+            "HTTP_DEBUG provider_config class: %s, model: %s, custom_llm_provider: %s",
+            type(provider_config).__name__,
+            model,
+            custom_llm_provider,
+        )
         data = provider_config.transform_request(
             model=model,
             messages=messages,

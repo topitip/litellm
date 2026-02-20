@@ -19,6 +19,7 @@ import {
   ExperimentOutlined,
   ToolOutlined,
   TagsOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
 // import {
 //   all_admin_roles,
@@ -30,7 +31,7 @@ import {
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { all_admin_roles, internalUserRoles, isAdminRole, rolesWithWriteAccess } from "@/utils/roles";
-import UsageIndicator from "@/components/usage_indicator";
+import UsageIndicator from "@/components/UsageIndicator";
 import { serverRootPath } from "@/components/networking";
 
 const { Sider } = Layout;
@@ -102,6 +103,8 @@ const routeFor = (slug: string): string => {
       return "logs";
     case "guardrails":
       return "guardrails";
+    case "policies":
+      return "policies";
 
     // tools
     case "mcp-servers":
@@ -200,6 +203,13 @@ const menuItems: MenuItemCfg[] = [
     page: "guardrails",
     label: "Guardrails",
     icon: <SafetyOutlined style={{ fontSize: 18 }} />,
+    roles: all_admin_roles,
+  },
+  {
+    key: "28",
+    page: "policies",
+    label: "Policies",
+    icon: <AuditOutlined style={{ fontSize: 18 }} />,
     roles: all_admin_roles,
   },
   {

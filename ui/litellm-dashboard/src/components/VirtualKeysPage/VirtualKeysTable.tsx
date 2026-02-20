@@ -24,14 +24,16 @@ import {
   TableRow,
   Text,
 } from "@tremor/react";
-import { Skeleton, Tooltip } from "antd";
-import React, { useEffect, useState } from "react";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { Popover, Skeleton, Tooltip } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
 import { getModelDisplayName } from "../key_team_helpers/fetch_available_models_team_key";
 import { useFilterLogic } from "../key_team_helpers/filter_logic";
 import { KeyResponse, Team } from "../key_team_helpers/key_list";
 import FilterComponent, { FilterOption } from "../molecules/filter";
 import { Organization } from "../networking";
 import KeyInfoView from "../templates/key_info_view";
+import { formatNumberWithCommas } from "@/utils/dataUtils";
 
 interface VirtualKeysTableProps {
   teams: Team[] | null;
@@ -71,12 +73,19 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
     pageSize: 50,
   });
 
+  // Extract sort parameters from sorting state
+  const sortBy = sorting.length > 0 ? sorting[0].id : null;
+  const sortOrder = sorting.length > 0 ? (sorting[0].desc ? "desc" : "asc") : null;
+
   const {
     data: keys,
     isPending: isLoading,
     isFetching,
     refetch,
-  } = useKeys(tablePagination.pageIndex + 1, tablePagination.pageSize);
+  } = useKeys(tablePagination.pageIndex + 1, tablePagination.pageSize, {
+    sortBy: sortBy || undefined,
+    sortOrder: sortOrder || undefined,
+  });
   const totalCount = keys?.total_count || 0;
   const [expandedAccordions, setExpandedAccordions] = useState<Record<string, boolean>>({});
 
@@ -105,11 +114,12 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
     }
   }, [refetch]);
 
-  const columns: ColumnDef<KeyResponse>[] = [
+  const columns: ColumnDef<KeyResponse>[] = useMemo(() => [
     {
       id: "expander",
       header: () => null,
       size: 40,
+      enableSorting: false,
       cell: ({ row }) =>
         row.getCanExpand() ? (
           <button onClick={row.getToggleExpandedHandler()} style={{ cursor: "pointer" }}>
@@ -121,27 +131,32 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       id: "token",
       accessorKey: "token",
       header: "Key ID",
-      size: 150,
-      cell: (info) => (
-        <div className="overflow-hidden">
-          <Tooltip title={info.getValue() as string}>
+      size: 100,
+      enableSorting: true,
+      cell: (info) => {
+        const value = info.getValue() as string;
+        const width = info.cell.column.getSize();
+        return (
+          <Tooltip title={value}>
             <Button
               size="xs"
               variant="light"
-              className="font-mono text-blue-500 bg-blue-50 hover:bg-blue-100 text-xs font-normal px-2 py-0.5 text-left overflow-hidden truncate max-w-[200px]"
+              className="font-mono text-blue-500 bg-blue-50 hover:bg-blue-100 text-xs font-normal px-2 py-0.5 text-left overflow-hidden truncate block"
+              style={{ maxWidth: width, overflow: "hidden" }}
               onClick={() => setSelectedKey(info.row.original)}
             >
-              {info.getValue() ? `${(info.getValue() as string).slice(0, 7)}...` : "-"}
+              {value ?? "-"}
             </Button>
           </Tooltip>
-        </div>
-      ),
+        );
+      },
     },
     {
       id: "key_alias",
       accessorKey: "key_alias",
       header: "Key Alias",
       size: 150,
+      enableSorting: true,
       cell: (info) => {
         const value = info.getValue() as string;
         const width = info.cell.column.getSize();
@@ -159,6 +174,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "key_name",
       header: "Secret Key",
       size: 120,
+      enableSorting: false,
       cell: (info) => <span className="font-mono text-xs">{info.getValue() as string}</span>,
     },
     {
@@ -166,6 +182,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "team_id",
       header: "Team Alias",
       size: 120,
+      enableSorting: false,
       cell: ({ row, getValue }) => {
         const teamId = getValue() as string;
         const team = teams?.find((t) => t.team_id === teamId);
@@ -176,18 +193,26 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       id: "team_id",
       accessorKey: "team_id",
       header: "Team ID",
-      size: 120,
-      cell: (info) => (
-        <Tooltip title={info.getValue() as string}>
-          {info.getValue() ? `${(info.getValue() as string).slice(0, 7)}...` : "-"}
-        </Tooltip>
-      ),
+      size: 80,
+      enableSorting: false,
+      cell: (info) => {
+        const value = info.getValue() as string | null;
+        const width = info.cell.column.getSize();
+        return (
+          <Tooltip title={value}>
+            <span className={`font-mono text-xs truncate block`} style={{ maxWidth: width, overflow: "hidden" }}>
+              {value ?? "-"}
+            </span>
+          </Tooltip>
+        );
+      },
     },
     {
       id: "organization_id",
       accessorKey: "organization_id",
       header: "Organization ID",
       size: 140,
+      enableSorting: false,
       cell: (info) => (info.getValue() ? info.renderValue() : "-"),
     },
     {
@@ -195,6 +220,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "user",
       header: "User Email",
       size: 160,
+      enableSorting: false,
       cell: (info) => {
         const user = info.getValue() as any;
         const value = user?.user_email;
@@ -212,17 +238,19 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       id: "user_id",
       accessorKey: "user_id",
       header: "User ID",
-      size: 120,
+      size: 70,
+      enableSorting: false,
       cell: (info) => {
         const userId = info.getValue() as string | null;
-        if (userId && userId.length > 15) {
-          return (
-            <Tooltip title={userId}>
-              <span>{userId.slice(0, 7)}...</span>
-            </Tooltip>
-          );
-        }
-        return userId ? userId : "-";
+        const displayValue = userId === "default_user_id" ? "Default Proxy Admin" : userId;
+        const width = info.cell.column.getSize();
+        return (
+          <Tooltip title={displayValue}>
+            <span className={`font-mono text-xs truncate block`} style={{ maxWidth: width, overflow: "hidden" }}>
+              {displayValue ?? "-"}
+            </span>
+          </Tooltip>
+        );
       },
     },
     {
@@ -230,6 +258,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "created_at",
       header: "Created At",
       size: 120,
+      enableSorting: true,
       cell: (info) => {
         const value = info.getValue();
         return value ? new Date(value as string).toLocaleDateString() : "-";
@@ -239,17 +268,19 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       id: "created_by",
       accessorKey: "created_by",
       header: "Created By",
-      size: 120,
+      size: 70,
+      enableSorting: false,
       cell: (info) => {
         const value = info.getValue() as string | null;
-        if (value && value.length > 15) {
-          return (
-            <Tooltip title={value}>
-              <span>{value.slice(0, 7)}...</span>
-            </Tooltip>
-          );
-        }
-        return value;
+        const displayValue = value === "default_user_id" ? "Default Proxy Admin" : value;
+        const width = info.cell.column.getSize();
+        return (
+          <Tooltip title={displayValue}>
+            <span className={`font-mono text-xs truncate block`} style={{ maxWidth: width, overflow: "hidden" }}>
+              {displayValue ?? "-"}
+            </span>
+          </Tooltip>
+        );
       },
     },
     {
@@ -257,9 +288,37 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "updated_at",
       header: "Updated At",
       size: 120,
+      enableSorting: true,
       cell: (info) => {
         const value = info.getValue();
         return value ? new Date(value as string).toLocaleDateString() : "Never";
+      },
+    },
+    {
+      id: "last_active",
+      accessorKey: "last_active",
+      header: () => (
+        <span className="flex items-center gap-1">
+          Last Active
+          <Popover
+            content="This is a new field and is not backfilled. Only new key usage will update this value."
+            trigger="hover"
+          >
+            <InfoCircleOutlined className="text-gray-400 text-xs cursor-help" />
+          </Popover>
+        </span>
+      ),
+      size: 130,
+      enableSorting: false,
+      cell: (info) => {
+        const value = info.getValue();
+        if (!value) return "Unknown";
+        const date = new Date(value as string);
+        return (
+          <Tooltip title={date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "long" })}>
+            <span>{date.toLocaleDateString()}</span>
+          </Tooltip>
+        );
       },
     },
     {
@@ -267,6 +326,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "expires",
       header: "Expires",
       size: 120,
+      enableSorting: false,
       cell: (info) => {
         const value = info.getValue();
         return value ? new Date(value as string).toLocaleDateString() : "Never";
@@ -277,13 +337,15 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "spend",
       header: "Spend (RUB)",
       size: 100,
-      cell: (info) => formatRubles(info.getValue() as number, 4),
+      enableSorting: true,
+      cell: (info) => formatNumberWithCommas(info.getValue() as number, 4),
     },
     {
       id: "max_budget",
       accessorKey: "max_budget",
       header: "Budget (RUB)",
       size: 110,
+      enableSorting: true,
       cell: (info) => {
         const maxBudget = info.getValue() as number | null;
         if (maxBudget === null) {
@@ -297,6 +359,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "budget_reset_at",
       header: "Budget Reset",
       size: 130,
+      enableSorting: false,
       cell: (info) => {
         const value = info.getValue();
         return value ? new Date(value as string).toLocaleString() : "Never";
@@ -307,6 +370,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       accessorKey: "models",
       header: "Models",
       size: 200,
+      enableSorting: false,
       cell: (info) => {
         const models = info.getValue() as string[];
         return (
@@ -391,6 +455,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
       id: "rate_limits",
       header: "Rate Limits",
       size: 140,
+      enableSorting: false,
       cell: ({ row }) => {
         const key = row.original;
         return (
@@ -401,7 +466,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
         );
       },
     },
-  ];
+  ], []);
 
   const filterOptions: FilterOption[] = [
     {
@@ -491,11 +556,16 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
         const sortBy = sortState.id;
         const sortOrder = sortState.desc ? "desc" : "asc";
         console.log(`sortBy: ${sortBy}, sortOrder: ${sortOrder}`);
-        handleFilterChange({
-          ...filters,
-          "Sort By": sortBy,
-          "Sort Order": sortOrder,
-        });
+        // Update filters state without triggering debouncedSearch
+        // The useKeys hook will automatically refetch with the new sort parameters
+        handleFilterChange(
+          {
+            ...filters,
+            "Sort By": sortBy,
+            "Sort Order": sortOrder,
+          },
+          true, // skipDebounce - let useKeys handle the API call with correct page size
+        );
         onSortChange?.(sortBy, sortOrder);
       }
     },
@@ -601,12 +671,13 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
                             key={header.id}
                             data-header-id={header.id}
                             className={`py-1 h-8 relative hover:bg-gray-50 ${header.id === "actions"
-                                ? "sticky right-0 bg-white shadow-[-4px_0_8px_-6px_rgba(0,0,0,0.1)]"
-                                : ""
+                              ? "sticky right-0 bg-white shadow-[-4px_0_8px_-6px_rgba(0,0,0,0.1)]"
+                              : ""
                               }`}
                             style={{
                               width: header.getSize(),
                               position: "relative",
+                              cursor: header.column.getCanSort() ? "pointer" : "default",
                             }}
                             onMouseEnter={() => {
                               const resizer = document.querySelector(`[data-header-id="${header.id}"] .resizer`);
@@ -620,7 +691,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
                                 (resizer as HTMLElement).style.opacity = "0";
                               }
                             }}
-                            onClick={header.column.getToggleSortingHandler()}
+                            onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center">
@@ -628,7 +699,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
                                   ? null
                                   : flexRender(header.column.columnDef.header, header.getContext())}
                               </div>
-                              {header.id !== "actions" && (
+                              {header.id !== "actions" && header.column.getCanSort() && (
                                 <div className="w-4">
                                   {header.column.getIsSorted() ? (
                                     {
@@ -685,7 +756,7 @@ export function VirtualKeysTable({ teams, organizations, onSortChange, currentSo
                                 whiteSpace: "pre-wrap",
                                 overflow: "hidden",
                               }}
-                              className={`py-0.5 max-h-8 overflow-hidden text-ellipsis whitespace-nowrap ${cell.column.id === "models" && (cell.getValue() as string[]).length > 3 ? "px-0" : ""}`}
+                              className={`py-0.5 max-h-8 overflow-hidden text-ellipsis whitespace-nowrap ${cell.column.id === "models" && Array.isArray(cell.getValue()) && (cell.getValue() as string[]).length > 3 ? "px-0" : ""}`}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </TableCell>

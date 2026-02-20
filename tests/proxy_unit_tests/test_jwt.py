@@ -418,6 +418,7 @@ async def test_team_token_output(prisma_client, audience, monkeypatch):
 
     ## 1. INITIAL TEAM CALL - should fail
     # use generated key to auth in
+    setattr(litellm.proxy.proxy_server, "premium_user", True)
     setattr(
         litellm.proxy.proxy_server,
         "general_settings",
@@ -840,6 +841,7 @@ async def test_allowed_routes_admin(
 
         ## 1. INITIAL TEAM CALL - should fail
         # use generated key to auth in
+        setattr(litellm.proxy.proxy_server, "premium_user", True)
         setattr(
             litellm.proxy.proxy_server,
             "general_settings",
@@ -923,10 +925,19 @@ def public_jwt_key():
     return {"private_key": private_key, "public_jwk": public_jwk}
 
 
-def mock_user_object(*args, **kwargs):
+async def mock_user_object(*args, **kwargs):
     print("Args: {}".format(args))
     print("kwargs: {}".format(kwargs))
     assert kwargs["user_id_upsert"] is True
+    # Return a mock user object
+    user_id = kwargs.get("user_id")
+    user_email = kwargs.get("user_email")
+    return LiteLLM_UserTable(
+        spend=0, 
+        user_id=user_id, 
+        max_budget=None, 
+        user_email=user_email
+    )
 
 
 @pytest.mark.parametrize(
@@ -1005,6 +1016,7 @@ async def test_allow_access_by_email(
 
     ## 1. INITIAL TEAM CALL - should fail
     # use generated key to auth in
+    setattr(litellm.proxy.proxy_server, "premium_user", True)
     setattr(
         litellm.proxy.proxy_server,
         "general_settings",
@@ -1166,6 +1178,7 @@ async def test_end_user_jwt_auth(monkeypatch):
         ),
     )
     
+    setattr(litellm.proxy.proxy_server, "premium_user", True)
     setattr(
         litellm.proxy.proxy_server,
         "general_settings",

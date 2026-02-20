@@ -3448,15 +3448,27 @@ def get_optional_params_embeddings(  # noqa: PLR0915
 
 def _fix_schema_required_field(schema):
     """
-    Fix 'required' fields in JSON schema that are incorrectly set to a non-array type (e.g. empty dict {}).
+    Fix 'required' fields in JSON schema that are invalid or empty.
 
-    JSON Schema specifies that 'required' must be an array of strings. Some frameworks
-    or user-provided schemas may incorrectly set it to {} or other non-list types,
-    which causes validation errors in providers like VLLM.
+    JSON Schema Draft 4 specifies that 'required' must be a non-empty array of strings.
+    Some providers (e.g. vLLM / Cloud.ru) use Draft 4 validation and reject:
+    - required: {} (non-array type, e.g. from Pydantic's model_dump())
+    - required: [] (empty array, invalid in Draft 4 which requires at least one element)
+
+    This function:
+    1. Converts non-list 'required' values (e.g. {}) to [] for safety
+    2. Removes 'required' entirely when it's an empty list (semantically equivalent
+       to omitting it, and avoids Draft 4 validation errors)
     """
     if isinstance(schema, dict):
-        if "required" in schema and not isinstance(schema["required"], list):
-            schema["required"] = []
+        if "required" in schema:
+            if not isinstance(schema["required"], list):
+                # Convert non-list (e.g. {}) to empty list first
+                schema["required"] = []
+            # Remove empty required arrays — Draft 4 requires at least one element,
+            # and omitting 'required' is semantically identical to an empty array
+            if isinstance(schema["required"], list) and len(schema["required"]) == 0:
+                del schema["required"]
 
         for key, value in schema.items():
             _fix_schema_required_field(value)

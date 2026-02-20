@@ -218,9 +218,10 @@ def test_hosted_vllm_thinking_blocks_prepended_to_assistant_content():
 
 def test_fix_schema_required_field_empty_dict():
     """
-    Test that _fix_schema_required_field converts required: {} to required: [].
+    Test that _fix_schema_required_field removes required: {} entirely.
 
-    VLLM rejects tool schemas where 'required' is not an array.
+    VLLM (Draft 4) rejects tool schemas where 'required' is not a non-empty array.
+    Empty required should be removed, not converted to [].
     """
     schema = {
         "type": "object",
@@ -230,7 +231,26 @@ def test_fix_schema_required_field_empty_dict():
         "required": {},
     }
     result = _fix_schema_required_field(schema)
-    assert result["required"] == []
+    assert "required" not in result
+
+
+def test_fix_schema_required_field_empty_array():
+    """
+    Test that _fix_schema_required_field removes required: [] entirely.
+
+    JSON Schema Draft 4 requires 'required' to have at least one element.
+    vLLM / Cloud.ru rejects required: [] with a confusing error about {} not being array.
+    The fix is to remove 'required' entirely when empty (semantically equivalent).
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+        },
+        "required": [],
+    }
+    result = _fix_schema_required_field(schema)
+    assert "required" not in result
 
 
 def test_fix_schema_required_field_nested():
@@ -252,12 +272,34 @@ def test_fix_schema_required_field_nested():
     }
     result = _fix_schema_required_field(schema)
     assert result["required"] == ["address"]
-    assert result["properties"]["address"]["required"] == []
+    assert "required" not in result["properties"]["address"]
+
+
+def test_fix_schema_required_field_nested_empty_array():
+    """
+    Test that _fix_schema_required_field removes nested empty required arrays.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "address": {
+                "type": "object",
+                "properties": {
+                    "street": {"type": "string"},
+                },
+                "required": [],
+            },
+        },
+        "required": ["address"],
+    }
+    result = _fix_schema_required_field(schema)
+    assert result["required"] == ["address"]
+    assert "required" not in result["properties"]["address"]
 
 
 def test_fix_schema_required_field_valid_array_unchanged():
     """
-    Test that _fix_schema_required_field leaves valid required arrays untouched.
+    Test that _fix_schema_required_field leaves valid non-empty required arrays untouched.
     """
     schema = {
         "type": "object",
@@ -362,7 +404,10 @@ def test_fix_empty_parameters_valid_unchanged():
 
 def test_hosted_vllm_tools_required_field_fixed():
     """
-    Test that hosted_vllm transformation fixes invalid required fields in tools.
+    Test that hosted_vllm transformation removes invalid/empty required fields in tools.
+
+    vLLM (Cloud.ru) uses JSON Schema Draft 4 which requires 'required' to be a non-empty array.
+    Empty or invalid required fields should be removed entirely.
     """
     config = HostedVLLMChatConfig()
     tools = [
@@ -387,9 +432,72 @@ def test_hosted_vllm_tools_required_field_fixed():
         model="hosted_vllm/test-model",
         drop_params=False,
     )
-    required_field = result["tools"][0]["function"]["parameters"]["required"]
-    assert isinstance(required_field, list)
-    assert required_field == []
+    # required: {} should be removed entirely (not converted to [])
+    assert "required" not in result["tools"][0]["function"]["parameters"]
+
+
+def test_hosted_vllm_tools_empty_required_array_removed():
+    """
+    Test that hosted_vllm transformation removes empty required: [] from tools.
+
+    JSON Schema Draft 4 requires 'required' to have at least one element.
+    vLLM / Cloud.ru rejects required: [] with error about {} not being array.
+    """
+    config = HostedVLLMChatConfig()
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the weather",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                    },
+                    "required": [],
+                },
+            },
+        }
+    ]
+    result = config.map_openai_params(
+        non_default_params={"tools": tools},
+        optional_params={},
+        model="hosted_vllm/test-model",
+        drop_params=False,
+    )
+    # required: [] should be removed entirely
+    assert "required" not in result["tools"][0]["function"]["parameters"]
+
+
+def test_hosted_vllm_tools_nonempty_required_preserved():
+    """
+    Test that hosted_vllm transformation preserves non-empty required arrays.
+    """
+    config = HostedVLLMChatConfig()
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the weather",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
+    result = config.map_openai_params(
+        non_default_params={"tools": tools},
+        optional_params={},
+        model="hosted_vllm/test-model",
+        drop_params=False,
+    )
+    assert result["tools"][0]["function"]["parameters"]["required"] == ["location"]
 
 
 def test_hosted_vllm_tools_empty_parameters_fixed():

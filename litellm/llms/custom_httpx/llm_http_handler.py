@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -19,8 +18,6 @@ from openai.types.file_deleted import FileDeleted
 
 import litellm
 import litellm.litellm_core_utils
-
-_vllm_debug_logger = logging.getLogger("litellm.vllm_debug")
 import litellm.types
 import litellm.types.utils
 from litellm._logging import verbose_logger
@@ -174,36 +171,10 @@ class BaseLLMHTTPHandler:
 
         response: Optional[httpx.Response] = None
 
-        # Last-resort fix: ensure no tool has required: {} before sending
+        # Last-resort fix: ensure no tool has invalid required fields before sending
         if data and isinstance(data, dict) and "tools" in data:
             from litellm.utils import _fix_schema_required_field
             _fix_schema_required_field(data["tools"])
-            # Log FULL tools payload and scan for any remaining issues
-            _full_tools_json = json.dumps(data["tools"], default=str)
-            _vllm_debug_logger.error(
-                "VLLM_TOOLS_DEBUG api_base=%s num_tools=%d full_payload_length=%d",
-                api_base,
-                len(data["tools"]),
-                len(_full_tools_json),
-            )
-            # Log each tool individually to avoid truncation
-            for _ti, _tool in enumerate(data["tools"]):
-                _tool_json = json.dumps(_tool, default=str)
-                _vllm_debug_logger.error(
-                    "VLLM_TOOL[%d] = %s",
-                    _ti,
-                    _tool_json,
-                )
-            # Check for any dict-type required fields that slipped through
-            if "'required': {}" in _full_tools_json or '"required": {}' in _full_tools_json:
-                _vllm_debug_logger.error(
-                    "VLLM_BUG_DETECTED: found required: {} in tools after fix!"
-                )
-            # Also check if signed_json_body will be used instead of data
-            _vllm_debug_logger.error(
-                "VLLM_SIGNED_BODY signed_json_body is %s",
-                "NOT None" if signed_json_body is not None else "None",
-            )
 
         for i in range(max(max_retry_on_unprocessable_entity_error, 1)):
             try:
@@ -466,8 +437,12 @@ class BaseLLMHTTPHandler:
                                 _params["type"] = "object"
                             if "properties" not in _params:
                                 _params["properties"] = {}
-                            if "required" in _params and not isinstance(_params["required"], list):
-                                _params["required"] = []
+                            # Fix invalid required fields:
+                            # - non-list (e.g. {}) → remove
+                            # - empty list [] → remove (Draft 4 requires non-empty)
+                            if "required" in _params:
+                                if not isinstance(_params["required"], list) or len(_params["required"]) == 0:
+                                    del _params["required"]
 
         if extra_body is not None:
             data = {**data, **extra_body}

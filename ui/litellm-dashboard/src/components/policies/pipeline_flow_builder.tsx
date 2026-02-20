@@ -775,7 +775,7 @@ const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
 
         {!result && !error && (
           <div style={{ textAlign: "center", color: "#9ca3af", fontSize: 13, marginTop: 24 }}>
-            Enter a test message and click "Run Test" to execute the pipeline
+            Enter a test message and click &quot;Run Test&quot; to execute the pipeline
           </div>
         )}
       </div>

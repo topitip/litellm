@@ -5,7 +5,7 @@ import { Badge, Button, Icon } from "@tremor/react";
 import { Divider, Flex, Popover, Space, Tooltip, Typography } from "antd";
 import { ModelData } from "../../model_dashboard/types";
 import { ProviderLogo } from "./ProviderLogo";
-import { formatRubles } from "@/utils/currencyUtils";
+
 
 const { Text, Title } = Typography;
 

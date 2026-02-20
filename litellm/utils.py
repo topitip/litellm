@@ -3446,6 +3446,28 @@ def get_optional_params_embeddings(  # noqa: PLR0915
     return final_params
 
 
+def _fix_schema_required_field(schema):
+    """
+    Fix 'required' fields in JSON schema that are incorrectly set to a non-array type (e.g. empty dict {}).
+
+    JSON Schema specifies that 'required' must be an array of strings. Some frameworks
+    or user-provided schemas may incorrectly set it to {} or other non-list types,
+    which causes validation errors in providers like VLLM.
+    """
+    if isinstance(schema, dict):
+        if "required" in schema and not isinstance(schema["required"], list):
+            schema["required"] = []
+
+        for key, value in schema.items():
+            _fix_schema_required_field(value)
+
+    elif isinstance(schema, list):
+        for item in schema:
+            _fix_schema_required_field(item)
+
+    return schema
+
+
 def _remove_additional_properties(schema):
     """
     clean out 'additionalProperties = False'. Causes vertexai/gemini OpenAI API Schema errors - https://github.com/langchain-ai/langchainjs/issues/5240

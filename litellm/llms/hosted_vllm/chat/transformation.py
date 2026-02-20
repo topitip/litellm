@@ -16,7 +16,11 @@ from litellm.types.llms.openai import (
     ChatCompletionVideoUrlObject,
 )
 
-from ....utils import _remove_additional_properties, _remove_strict_from_schema
+from ....utils import (
+    _fix_schema_required_field,
+    _remove_additional_properties,
+    _remove_strict_from_schema,
+)
 from ...openai.chat.gpt_transformation import OpenAIGPTConfig
 
 
@@ -39,6 +43,8 @@ class HostedVLLMChatConfig(OpenAIGPTConfig):
             _tools = _remove_additional_properties(_tools)
             # remove 'strict' from tools
             _tools = _remove_strict_from_schema(_tools)
+            # fix 'required' fields that are not arrays (e.g. {} instead of [])
+            _tools = _fix_schema_required_field(_tools)
         if _tools is not None:
             non_default_params["tools"] = _tools
 

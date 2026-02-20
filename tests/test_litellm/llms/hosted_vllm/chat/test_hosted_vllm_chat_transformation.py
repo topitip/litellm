@@ -8,6 +8,7 @@ sys.path.insert(
 )  # Adds the parent directory to the system path
 
 from litellm.llms.hosted_vllm.chat.transformation import HostedVLLMChatConfig
+from litellm.utils import _fix_schema_required_field
 
 
 def test_hosted_vllm_chat_transformation_file_url():
@@ -213,6 +214,95 @@ def test_hosted_vllm_thinking_blocks_prepended_to_assistant_content():
         "text": "Here is my answer.",
     }
     assert "thinking_blocks" not in assistant_msg
+
+
+def test_fix_schema_required_field_empty_dict():
+    """
+    Test that _fix_schema_required_field converts required: {} to required: [].
+
+    VLLM rejects tool schemas where 'required' is not an array.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+        },
+        "required": {},
+    }
+    result = _fix_schema_required_field(schema)
+    assert result["required"] == []
+
+
+def test_fix_schema_required_field_nested():
+    """
+    Test that _fix_schema_required_field fixes nested required fields.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "address": {
+                "type": "object",
+                "properties": {
+                    "street": {"type": "string"},
+                },
+                "required": {},
+            },
+        },
+        "required": ["address"],
+    }
+    result = _fix_schema_required_field(schema)
+    assert result["required"] == ["address"]
+    assert result["properties"]["address"]["required"] == []
+
+
+def test_fix_schema_required_field_valid_array_unchanged():
+    """
+    Test that _fix_schema_required_field leaves valid required arrays untouched.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+        },
+        "required": ["name"],
+    }
+    result = _fix_schema_required_field(schema)
+    assert result["required"] == ["name"]
+
+
+def test_hosted_vllm_tools_required_field_fixed():
+    """
+    Test that hosted_vllm transformation fixes invalid required fields in tools.
+
+    Reproduces the error:
+    "Tool 0 function has invalid 'parameters' schema: {} is not of type 'array'"
+    """
+    config = HostedVLLMChatConfig()
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the weather",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                    },
+                    "required": {},
+                },
+            },
+        }
+    ]
+    result = config.map_openai_params(
+        non_default_params={"tools": tools},
+        optional_params={},
+        model="hosted_vllm/test-model",
+        drop_params=False,
+    )
+    required_field = result["tools"][0]["function"]["parameters"]["required"]
+    assert isinstance(required_field, list)
+    assert required_field == []
 
 
 def test_hosted_vllm_thinking_blocks_with_list_content():

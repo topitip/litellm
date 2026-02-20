@@ -532,18 +532,6 @@ function CreateKeyPageContent() {
                   )}
                 </div>
 
-                {/* Survey Components */}
-                <SurveyPrompt
-                  isVisible={showSurveyPrompt}
-                  onOpen={handleOpenSurvey}
-                  onDismiss={handleDismissSurveyPrompt}
-                />
-                <SurveyModal
-                  isOpen={showSurveyModal}
-                  onClose={handleSurveyModalClose}
-                  onComplete={handleSurveyComplete}
-                />
-
                 {/* Claude Code Components */}
                 <ClaudeCodePrompt
                   isVisible={showClaudeCodePrompt}

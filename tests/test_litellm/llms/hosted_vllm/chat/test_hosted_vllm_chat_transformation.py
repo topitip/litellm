@@ -305,6 +305,40 @@ def test_hosted_vllm_tools_required_field_fixed():
     assert required_field == []
 
 
+def test_hosted_vllm_transform_request_fixes_required_field():
+    """
+    Test that transform_request fixes invalid required fields in tools
+    right before sending the request. This is the last line of defense.
+    """
+    config = HostedVLLMChatConfig()
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get the weather",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                    },
+                    "required": {},
+                },
+            },
+        }
+    ]
+    result = config.transform_request(
+        model="hosted_vllm/test-model",
+        messages=[{"role": "user", "content": "Hello"}],
+        optional_params={"tools": tools},
+        litellm_params={},
+        headers={},
+    )
+    required_field = result["tools"][0]["function"]["parameters"]["required"]
+    assert isinstance(required_field, list)
+    assert required_field == []
+
+
 def test_hosted_vllm_thinking_blocks_with_list_content():
     """
     Test thinking_blocks prepended when assistant content is already a list.

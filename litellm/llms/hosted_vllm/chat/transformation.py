@@ -72,6 +72,28 @@ class HostedVLLMChatConfig(OpenAIGPTConfig):
             non_default_params, optional_params, model, drop_params
         )
 
+    def transform_request(
+        self,
+        model: str,
+        messages: List[AllMessageValues],
+        optional_params: dict,
+        litellm_params: dict,
+        headers: dict,
+    ) -> dict:
+        # Fix 'required' fields right before sending - last line of defense
+        tools = optional_params.get("tools")
+        if tools is not None:
+            _remove_additional_properties(tools)
+            _remove_strict_from_schema(tools)
+            _fix_schema_required_field(tools)
+        return super().transform_request(
+            model=model,
+            messages=messages,
+            optional_params=optional_params,
+            litellm_params=litellm_params,
+            headers=headers,
+        )
+
     def _get_openai_compatible_provider_info(
         self, api_base: Optional[str], api_key: Optional[str]
     ) -> Tuple[Optional[str], Optional[str]]:

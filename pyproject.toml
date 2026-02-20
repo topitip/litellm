@@ -105,7 +105,6 @@ proxy = [
     "rich",
     "polars",
     "soundfile",
-    "pyroscope-io",
 ]
 
 extra_proxy = [

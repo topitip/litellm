@@ -178,11 +178,31 @@ class BaseLLMHTTPHandler:
         if data and isinstance(data, dict) and "tools" in data:
             from litellm.utils import _fix_schema_required_field
             _fix_schema_required_field(data["tools"])
-            # Log the tools payload for debugging
+            # Log FULL tools payload and scan for any remaining issues
+            _full_tools_json = json.dumps(data["tools"], default=str)
             _vllm_debug_logger.error(
-                "VLLM_TOOLS_DEBUG api_base=%s tools_json=%s",
+                "VLLM_TOOLS_DEBUG api_base=%s num_tools=%d full_payload_length=%d",
                 api_base,
-                json.dumps(data["tools"], default=str)[:5000],
+                len(data["tools"]),
+                len(_full_tools_json),
+            )
+            # Log each tool individually to avoid truncation
+            for _ti, _tool in enumerate(data["tools"]):
+                _tool_json = json.dumps(_tool, default=str)
+                _vllm_debug_logger.error(
+                    "VLLM_TOOL[%d] = %s",
+                    _ti,
+                    _tool_json,
+                )
+            # Check for any dict-type required fields that slipped through
+            if "'required': {}" in _full_tools_json or '"required": {}' in _full_tools_json:
+                _vllm_debug_logger.error(
+                    "VLLM_BUG_DETECTED: found required: {} in tools after fix!"
+                )
+            # Also check if signed_json_body will be used instead of data
+            _vllm_debug_logger.error(
+                "VLLM_SIGNED_BODY signed_json_body is %s",
+                "NOT None" if signed_json_body is not None else "None",
             )
 
         for i in range(max(max_retry_on_unprocessable_entity_error, 1)):

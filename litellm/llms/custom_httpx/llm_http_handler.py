@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,6 +19,8 @@ from openai.types.file_deleted import FileDeleted
 
 import litellm
 import litellm.litellm_core_utils
+
+_vllm_debug_logger = logging.getLogger("litellm.vllm_debug")
 import litellm.types
 import litellm.types.utils
 from litellm._logging import verbose_logger
@@ -170,6 +173,18 @@ class BaseLLMHTTPHandler:
         )
 
         response: Optional[httpx.Response] = None
+
+        # Last-resort fix: ensure no tool has required: {} before sending
+        if data and isinstance(data, dict) and "tools" in data:
+            from litellm.utils import _fix_schema_required_field
+            _fix_schema_required_field(data["tools"])
+            # Log the tools payload for debugging
+            _vllm_debug_logger.error(
+                "VLLM_TOOLS_DEBUG api_base=%s tools_json=%s",
+                api_base,
+                json.dumps(data["tools"], default=str)[:5000],
+            )
+
         for i in range(max(max_retry_on_unprocessable_entity_error, 1)):
             try:
                 response = await async_httpx_client.post(

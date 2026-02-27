@@ -12,7 +12,7 @@ ENV LITELLM_NON_ROOT=true
 # musl-dev and libffi-dev are needed for some Python packages on Alpine
 # nodejs is required for Prisma and frontend build
 RUN apk update && \
-    apk add --no-cache gcc musl-dev libffi-dev openssl openssl-dev rust cargo nodejs npm libsndfile
+    apk add --no-cache gcc musl-dev libffi-dev openssl openssl-dev rust cargo nodejs npm libsndfile-dev
 
 RUN python -m venv ${HOME}/venv
 RUN ${HOME}/venv/bin/pip install --no-cache-dir --upgrade pip

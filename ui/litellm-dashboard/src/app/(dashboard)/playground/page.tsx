@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import AgentBuilderView from "@/components/playground/chat_ui/AgentBuilderView";
 import ChatUI from "@/components/playground/chat_ui/ChatUI";
 import CompareUI from "@/components/playground/compareUI/CompareUI";
 import ComplianceUI from "@/components/playground/complianceUI/ComplianceUI";
@@ -34,11 +35,13 @@ export default function PlaygroundPage() {
   }, [accessToken]);
 
   return (
-    <TabGroup className="h-full w-full">
+    <div className="h-full w-full flex flex-col">
+    <TabGroup className="w-full" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
       <TabList className="mb-0">
         <Tab>Chat</Tab>
         <Tab>Compare</Tab>
         <Tab>Compliance</Tab>
+        <Tab>Agent Builder (Experimental)</Tab>
       </TabList>
       <TabPanels className="h-full">
         <TabPanel className="h-full">
@@ -57,7 +60,19 @@ export default function PlaygroundPage() {
         <TabPanel className="h-full">
           <ComplianceUI accessToken={accessToken} disabledPersonalKeyCreation={disabledPersonalKeyCreation} />
         </TabPanel>
+        <TabPanel className="h-full">
+          <AgentBuilderView
+            accessToken={accessToken}
+            token={token}
+            userID={userId}
+            userRole={userRole}
+            disabledPersonalKeyCreation={disabledPersonalKeyCreation}
+            proxySettings={proxySettings}
+            customProxyBaseUrl={proxySettings?.LITELLM_UI_API_DOC_BASE_URL ?? proxySettings?.PROXY_BASE_URL}
+          />
+        </TabPanel>
       </TabPanels>
     </TabGroup>
+    </div>
   );
 }

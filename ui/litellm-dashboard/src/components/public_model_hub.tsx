@@ -137,7 +137,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
           setLoading(true);
           const _modelHubData = await modelHubPublicModelsCall();
           console.log("ModelHubData:", _modelHubData);
-          setModelHubData(_modelHubData);
+          setModelHubData(Array.isArray(_modelHubData) ? _modelHubData : []);
         } catch (error) {
           console.error("There was an error fetching the public model data", error);
           setServiceStatus("Service unavailable");
@@ -151,7 +151,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
           setAgentLoading(true);
           const _agentHubData = await agentHubPublicModelsCall();
           console.log("AgentHubData:", _agentHubData);
-          setAgentHubData(_agentHubData);
+          setAgentHubData(Array.isArray(_agentHubData) ? _agentHubData : []);
         } catch (error) {
           console.error("There was an error fetching the public agent data", error);
         } finally {
@@ -164,7 +164,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
           setMcpLoading(true);
           const _mcpHubData = await mcpHubPublicServersCall();
           console.log("MCPHubData:", _mcpHubData);
-          setMcpHubData(_mcpHubData);
+          setMcpHubData(Array.isArray(_mcpHubData) ? _mcpHubData : []);
         } catch (error) {
           console.error("There was an error fetching the public MCP server data", error);
         } finally {
@@ -200,7 +200,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
   const getUniqueProviders = (data: ModelGroupInfo[]) => {
     const providers = new Set<string>();
     data.forEach((model) => {
-      model.providers.forEach((provider) => providers.add(provider));
+      (model.providers ?? []).forEach((provider) => providers.add(provider));
     });
     return Array.from(providers);
   };
@@ -561,6 +561,38 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
       size: 150,
     },
     {
+      header: "Providers",
+      accessorKey: "providers",
+      enableSorting: true,
+      cell: ({ row }) => {
+        const providers = row.original.providers ?? [];
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {providers.map((provider) => {
+              const { logo } = getProviderLogoAndName(provider);
+              return (
+                <div key={provider} className="flex items-center space-x-1 px-2 py-1 bg-gray-100 rounded text-xs">
+                  {logo && (
+                    <img
+                      src={logo}
+                      alt={provider}
+                      className="w-3 h-3 flex-shrink-0 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  )}
+                  <span className="capitalize">{provider}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
+      size: 120,
+    },
+    {
       header: "Mode",
       accessorKey: "mode",
       enableSorting: true,
@@ -761,7 +793,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
       accessorKey: "description",
       enableSorting: false,
       cell: ({ row }) => {
-        const description = row.original.description;
+        const description = row.original.description ?? "";
         const truncated = description.length > 80 ? description.substring(0, 80) + "..." : description;
         return (
           <Tooltip title={description}>
@@ -898,7 +930,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
       accessorKey: "mcp_info.description",
       enableSorting: false,
       cell: ({ row }) => {
-        const description = row.original.mcp_info?.description || "-";
+        const description = String(row.original.mcp_info?.description ?? "-");
         const truncated = description.length > 80 ? description.substring(0, 80) + "..." : description;
         return (
           <Tooltip title={description}>
@@ -913,7 +945,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
       accessorKey: "url",
       enableSorting: false,
       cell: ({ row }) => {
-        const url = row.original.url;
+        const url = row.original.url ?? "";
         const truncated = url.length > 40 ? url.substring(0, 40) + "..." : url;
         return (
           <Tooltip title={url}>
@@ -1330,10 +1362,35 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                     <Text className="font-medium">Model Name:</Text>
                     <Text>{selectedModel.model_group}</Text>
                   </div>
-                <div>
-                  <Text className="font-medium">Mode:</Text>
-                  <Text>{selectedModel.mode || "Not specified"}</Text>
-                </div>
+                  <div>
+                    <Text className="font-medium">Mode:</Text>
+                    <Text>{selectedModel.mode || "Not specified"}</Text>
+                  </div>
+                  <div>
+                    <Text className="font-medium">Providers:</Text>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(selectedModel.providers ?? []).map((provider) => {
+                        const { logo } = getProviderLogoAndName(provider);
+                        return (
+                          <Tag key={provider} color="blue">
+                            <div className="flex items-center space-x-1">
+                              {logo && (
+                                <img
+                                  src={logo}
+                                  alt={provider}
+                                  className="w-3 h-3 flex-shrink-0 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = "none";
+                                  }}
+                                />
+                              )}
+                              <span className="capitalize">{provider}</span>
+                            </div>
+                          </Tag>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Wildcard Routing Note */}
@@ -1428,7 +1485,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
               )}
 
               {/* Supported OpenAI Parameters */}
-              {selectedModel.supported_openai_params && (
+              {selectedModel.supported_openai_params && selectedModel.supported_openai_params.length > 0 && (
                 <div>
                   <Text className="text-lg font-semibold mb-4">Supported OpenAI Parameters</Text>
                   <div className="flex flex-wrap gap-2">
@@ -1602,7 +1659,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                   <div>
                     <Text className="font-medium">Input Modes:</Text>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedAgent.defaultInputModes?.map((mode) => (
+                      {(selectedAgent.defaultInputModes ?? []).map((mode) => (
                         <Tag key={mode} color="blue">
                           {mode}
                         </Tag>
@@ -1612,7 +1669,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                   <div>
                     <Text className="font-medium">Output Modes:</Text>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedAgent.defaultOutputModes?.map((mode) => (
+                      {(selectedAgent.defaultOutputModes ?? []).map((mode) => (
                         <Tag key={mode} color="blue">
                           {mode}
                         </Tag>

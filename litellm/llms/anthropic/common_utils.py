@@ -65,6 +65,8 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
         )
+        headers.setdefault("user-agent", "claude-cli/2.1.75")
+        headers.setdefault("x-app", "cli")
         return headers, api_key
     # Check api_key directly (standard chat/completion flow)
     if api_key and api_key.startswith(ANTHROPIC_OAUTH_TOKEN_PREFIX):
@@ -73,6 +75,8 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
         )
+        headers.setdefault("user-agent", "claude-cli/2.1.75")
+        headers.setdefault("x-app", "cli")
     return headers, api_key
 
 

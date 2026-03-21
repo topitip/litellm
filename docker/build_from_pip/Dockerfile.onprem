@@ -25,7 +25,7 @@ WORKDIR /app/litellm-source
 # Also install prisma as part of the requirements
 # Include proxy extras to ensure all dependencies like backoff are installed
 RUN --mount=type=cache,target=${HOME}/.cache/pip \
-    ${HOME}/venv/bin/pip install -e '.[proxy]' prisma
+    ${HOME}/venv/bin/pip install -e '.[proxy]' prisma 'httpx[socks]'
 
 # Build frontend
 WORKDIR /app/litellm-source/ui/litellm-dashboard

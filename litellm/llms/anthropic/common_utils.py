@@ -495,9 +495,16 @@ class AnthropicModelInfo(BaseLLMModelInfo):
         api_key: Optional[str] = None,
         api_base: Optional[str] = None,
     ) -> Dict:
+        import logging as _logging
+        _logging.getLogger("litellm").info(
+            f"[ARKASHA DEBUG] validate_environment called: api_key_prefix={str(api_key)[:20] if api_key else None}, headers_keys={list(headers.keys())}"
+        )
         # Check for Anthropic OAuth token in headers
         headers, api_key = optionally_handle_anthropic_oauth(
             headers=headers, api_key=api_key
+        )
+        _logging.getLogger("litellm").info(
+            f"[ARKASHA DEBUG] after oauth: api_key_prefix={str(api_key)[:20] if api_key else None}, is_oauth={api_key and api_key.startswith('sk-ant-oat') if api_key else False}, anthropic-beta={headers.get('anthropic-beta')}, dangerous={headers.get('anthropic-dangerous-direct-browser-access')}"
         )
         api_key = AnthropicModelInfo.get_api_key(api_key)
         # Resolve auth_token from ANTHROPIC_AUTH_TOKEN if api_key is not set

@@ -88,6 +88,10 @@ async def make_call(
         client = litellm.module_level_aclient
 
     try:
+        import logging as _logging
+        _logging.getLogger("litellm").info(
+            f"[ARKASHA DEBUG] make_call: url={api_base}, headers={dict(headers)}, payload={data[:500] if data else None}"
+        )
         response = await client.post(
             api_base, headers=headers, data=data, stream=True, timeout=timeout
         )
@@ -265,6 +269,10 @@ class AnthropicChatCompletion(BaseLLM):
         )
 
         try:
+            import logging as _logging, json as _json
+            _logging.getLogger("litellm").info(
+                f"[ARKASHA DEBUG] acompletion_function: url={api_base}, headers={dict(headers)}, payload={_json.dumps(data)[:500] if data else None}"
+            )
             response = await async_handler.post(
                 api_base, headers=headers, json=data, timeout=timeout
             )

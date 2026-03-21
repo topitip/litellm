@@ -896,16 +896,25 @@ class AsyncHTTPHandler:
             try:
                 from aiohttp_socks import ProxyConnector  # type: ignore
 
-                verbose_logger.debug(f"Using SOCKS5 proxy connector: {socks5_proxy}")
+                # aiohttp_socks doesn't support socks5h scheme directly.
+                # socks5h means socks5 + remote DNS resolution (rdns=True).
+                proxy_url = socks5_proxy.replace("socks5h://", "socks5://")
+                rdns = socks5_proxy.startswith("socks5h://")
+
+                verbose_logger.debug(f"Using SOCKS5 proxy connector: {proxy_url} rdns={rdns}")
+                _proxy_url = proxy_url
+                _rdns = rdns
+                _connector_kwargs = {
+                    k: v
+                    for k, v in transport_connector_kwargs.items()
+                    if k not in ("ssl",)
+                }
                 return LiteLLMAiohttpTransport(
                     client=lambda: ClientSession(
                         connector=ProxyConnector.from_url(
-                            socks5_proxy,
-                            **{
-                                k: v
-                                for k, v in transport_connector_kwargs.items()
-                                if k not in ("ssl",)
-                            },
+                            _proxy_url,
+                            rdns=_rdns,
+                            **_connector_kwargs,
                         ),
                         trust_env=trust_env,
                     ),

@@ -65,7 +65,6 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
         )
-        headers["anthropic-dangerous-direct-browser-access"] = "true"
         return headers, api_key
     # Check api_key directly (standard chat/completion flow)
     if api_key and api_key.startswith(ANTHROPIC_OAUTH_TOKEN_PREFIX):
@@ -74,7 +73,6 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
         )
-        headers["anthropic-dangerous-direct-browser-access"] = "true"
     return headers, api_key
 
 
@@ -448,7 +446,6 @@ class AnthropicModelInfo(BaseLLMModelInfo):
         }
         if _is_oauth:
             headers["authorization"] = f"Bearer {api_key}"
-            headers["anthropic-dangerous-direct-browser-access"] = "true"
             betas.add(ANTHROPIC_OAUTH_BETA_HEADER)
         elif auth_token and not api_key:
             headers["authorization"] = f"Bearer {auth_token}"

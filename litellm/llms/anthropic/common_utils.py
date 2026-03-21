@@ -65,6 +65,9 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
         )
+        headers["anthropic-beta"] = _merge_beta_headers(
+            headers.get("anthropic-beta"), "claude-code-20250219"
+        )
         headers.setdefault("user-agent", "claude-cli/2.1.75")
         headers.setdefault("x-app", "cli")
         return headers, api_key
@@ -74,6 +77,9 @@ def optionally_handle_anthropic_oauth(
         headers["authorization"] = f"Bearer {api_key}"
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), ANTHROPIC_OAUTH_BETA_HEADER
+        )
+        headers["anthropic-beta"] = _merge_beta_headers(
+            headers.get("anthropic-beta"), "claude-code-20250219"
         )
         headers.setdefault("user-agent", "claude-cli/2.1.75")
         headers.setdefault("x-app", "cli")

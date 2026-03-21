@@ -890,6 +890,33 @@ class AsyncHTTPHandler:
                 "limit_per_host"
             ] = AIOHTTP_CONNECTOR_LIMIT_PER_HOST
 
+        # Use SOCKS5 proxy connector if SOCKS5_PROXY env var is set
+        socks5_proxy = os.getenv("SOCKS5_PROXY")
+        if socks5_proxy:
+            try:
+                from aiohttp_socks import ProxyConnector  # type: ignore
+
+                verbose_logger.debug(f"Using SOCKS5 proxy connector: {socks5_proxy}")
+                return LiteLLMAiohttpTransport(
+                    client=lambda: ClientSession(
+                        connector=ProxyConnector.from_url(
+                            socks5_proxy,
+                            **{
+                                k: v
+                                for k, v in transport_connector_kwargs.items()
+                                if k not in ("ssl",)
+                            },
+                        ),
+                        trust_env=trust_env,
+                    ),
+                    ssl_verify=ssl_for_transport,
+                )
+            except ImportError:
+                verbose_logger.warning(
+                    "aiohttp_socks not installed, falling back to TCPConnector. "
+                    "Install with: pip install aiohttp-socks"
+                )
+
         return LiteLLMAiohttpTransport(
             client=lambda: ClientSession(
                 connector=TCPConnector(**transport_connector_kwargs),

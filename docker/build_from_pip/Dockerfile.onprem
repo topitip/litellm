@@ -12,11 +12,7 @@ ENV LITELLM_NON_ROOT=true
 # musl-dev and libffi-dev are needed for some Python packages on Alpine
 # nodejs is required for Prisma and frontend build
 RUN apk update && \
-    apk add --no-cache gcc musl-dev libffi-dev openssl openssl-dev rust cargo nodejs npm libsndfile wget
-
-# Install gost v3 (static binary, HTTP→SOCKS5 bridge)
-RUN wget -qO /usr/local/bin/gost https://github.com/go-gost/gost/releases/download/v3.0.0-rc10/gost_3.0.0-rc10_linux_amd64 && \
-    chmod +x /usr/local/bin/gost
+    apk add --no-cache gcc musl-dev libffi-dev openssl openssl-dev rust cargo nodejs npm libsndfile
 
 RUN python -m venv ${HOME}/venv
 RUN ${HOME}/venv/bin/pip install --no-cache-dir --upgrade pip
@@ -29,7 +25,7 @@ WORKDIR /app/litellm-source
 # Also install prisma as part of the requirements
 # Include proxy extras to ensure all dependencies like backoff are installed
 RUN --mount=type=cache,target=${HOME}/.cache/pip \
-    ${HOME}/venv/bin/pip install -e '.[proxy]' prisma 'httpx[socks]'
+    ${HOME}/venv/bin/pip install -e '.[proxy]' prisma 'httpx[socks]' aiohttp-socks
 
 # Build frontend
 WORKDIR /app/litellm-source/ui/litellm-dashboard

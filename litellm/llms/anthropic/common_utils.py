@@ -68,7 +68,8 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), "claude-code-20250219"
         )
-        headers.setdefault("user-agent", "claude-cli/2.1.75")
+        headers["anthropic-dangerous-direct-browser-access"] = "true"
+        headers.setdefault("user-agent", "claude-cli/2.1.62")
         headers.setdefault("x-app", "cli")
         return headers, api_key
     # Check api_key directly (standard chat/completion flow)
@@ -81,7 +82,8 @@ def optionally_handle_anthropic_oauth(
         headers["anthropic-beta"] = _merge_beta_headers(
             headers.get("anthropic-beta"), "claude-code-20250219"
         )
-        headers.setdefault("user-agent", "claude-cli/2.1.75")
+        headers["anthropic-dangerous-direct-browser-access"] = "true"
+        headers.setdefault("user-agent", "claude-cli/2.1.62")
         headers.setdefault("x-app", "cli")
     return headers, api_key
 
@@ -456,7 +458,11 @@ class AnthropicModelInfo(BaseLLMModelInfo):
         }
         if _is_oauth:
             headers["authorization"] = f"Bearer {api_key}"
+            headers["anthropic-dangerous-direct-browser-access"] = "true"
+            headers["user-agent"] = "claude-cli/2.1.62"
+            headers["x-app"] = "cli"
             betas.add(ANTHROPIC_OAUTH_BETA_HEADER)
+            betas.add("claude-code-20250219")
         elif auth_token and not api_key:
             headers["authorization"] = f"Bearer {auth_token}"
         elif api_key:

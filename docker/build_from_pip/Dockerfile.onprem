@@ -60,7 +60,7 @@ RUN mkdir -p /var/lib/litellm/ui && \
 # Return to source directory
 WORKDIR /app/litellm-source
 
-ln -sf /usr/lib/libsndfile.so.1 /usr/lib/libsndfile.so
+RUN ln -sf /usr/lib/libsndfile.so.1 /usr/lib/libsndfile.so
 
 COPY test_in_docker.sh /app
 

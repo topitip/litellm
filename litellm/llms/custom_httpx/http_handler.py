@@ -417,30 +417,18 @@ class AsyncHTTPHandler:
         # Get default headers (User-Agent, overridable via LITELLM_USER_AGENT)
         default_headers = get_default_headers()
 
-        # Check if SOCKS5 proxy should be used for Anthropic
-        from litellm.secret_managers.main import str_to_bool
-        socks5_proxy_url = os.getenv("LITELLM_SOCKS5_PROXY_URL")
-        use_socks5_proxy = (
-            str_to_bool(os.getenv("LITELLM_USE_SOCKS5_PROXY_FOR_ANTHROPIC", "False"))
-            and socks5_proxy_url
+        # NOTE: SOCKS5 proxy for Anthropic is handled at the aiohttp connector level
+        # (ProxyConnector in _create_aiohttp_transport). Do NOT add proxy= here —
+        # httpx requires socksio for SOCKS5 and this client is used for all providers.
+        return httpx.AsyncClient(
+            transport=transport,
+            event_hooks=event_hooks,
+            timeout=timeout,
+            verify=ssl_config,
+            cert=cert,
+            headers=default_headers,
+            follow_redirects=True,
         )
-        
-        # Prepare client parameters
-        client_params = {
-            "transport": transport,
-            "event_hooks": event_hooks,
-            "timeout": timeout,
-            "verify": ssl_config,
-            "cert": cert,
-            "headers": default_headers,
-            "follow_redirects": True,
-        }
-        
-        # Add proxy support if needed
-        if use_socks5_proxy and socks5_proxy_url:
-            client_params["proxy"] = socks5_proxy_url
-
-        return httpx.AsyncClient(**client_params)
 
     async def close(self):
         # Close the client when you're done with it
@@ -1007,29 +995,16 @@ class HTTPHandler:
             transport = self._create_sync_transport()
 
             # Create a client with a connection pool
-            # Check if SOCKS5 proxy should be used for Anthropic
-            from litellm.secret_managers.main import str_to_bool
-            socks5_proxy_url = os.getenv("LITELLM_SOCKS5_PROXY_URL")
-            use_socks5_proxy = (
-                str_to_bool(os.getenv("LITELLM_USE_SOCKS5_PROXY_FOR_ANTHROPIC", "False"))
-                and socks5_proxy_url
+            # NOTE: SOCKS5 proxy for Anthropic is handled at the aiohttp connector level.
+            # Do NOT add proxy= here — httpx requires socksio for SOCKS5.
+            self.client = httpx.Client(
+                transport=transport,
+                timeout=timeout,
+                verify=ssl_config,
+                cert=cert,
+                headers=default_headers,
+                follow_redirects=True,
             )
-            
-            # Prepare client parameters
-            client_params = {
-                "transport": transport,
-                "timeout": timeout,
-                "verify": ssl_config,
-                "cert": cert,
-                "headers": default_headers,
-                "follow_redirects": True,
-            }
-            
-            # Add proxy support if needed
-            if use_socks5_proxy and socks5_proxy_url:
-                client_params["proxy"] = socks5_proxy_url
-
-            self.client = httpx.Client(**client_params)
         else:
             self.client = client
 

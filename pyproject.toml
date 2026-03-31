@@ -106,6 +106,7 @@ proxy = [
     "rich",
     "polars",
     "soundfile",
+    "aiohttp_socks",
 ]
 
 extra_proxy = [

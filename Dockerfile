@@ -33,6 +33,9 @@ RUN ls -1 dist/*.whl | head -1
 # Install the package
 RUN pip install dist/*.whl
 
+# Install aiohttp_socks for SOCKS5 proxy support
+RUN pip install aiohttp_socks
+
 # install dependencies as wheels
 RUN pip wheel --no-cache-dir --wheel-dir=/wheels/ -r requirements.txt
 

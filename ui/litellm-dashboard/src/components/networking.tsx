@@ -68,7 +68,7 @@ export const getInProductNudgesCall = async (accessToken: string) => {
 /**
  * Helper file for calls being made to proxy
  */
-import { message } from "antd";
+import MessageManager from "@/components/molecules/message_manager";
 import { clearTokenCookies } from "@/utils/cookieUtils";
 import { TagNewRequest, TagUpdateRequest, TagListResponse, TagInfoResponse } from "./tag_management/types";
 import { Team } from "./key_team_helpers/key_list";
@@ -613,7 +613,7 @@ export const modelCreateCall = async (accessToken: string, formValues: Model) =>
     console.log("API Response:", data);
 
     // Close any existing messages before showing new ones
-    message.destroy();
+    MessageManager.destroy();
 
     // Sequential success messages
     NotificationsManager.success(`Model ${formValues.model_name} created successfully`);
@@ -7288,12 +7288,11 @@ export const getTeamPermissionsCall = async (accessToken: string, teamId: string
     if (!response.ok) {
       const errorData = await response.json();
       const errorMessage = deriveErrorMessage(errorData);
-      handleError(errorMessage);
-      throw new Error(errorMessage);
+      console.error("Available permissions fetch failed:", errorMessage);
+      return { all_available_permissions: [], team_member_permissions: [] };
     }
 
     const data = await response.json();
-    console.log("Team permissions response:", data);
     return data;
   } catch (error) {
     console.error("Failed to get team permissions:", error);

@@ -4,7 +4,6 @@ import {
   Modal,
   Typography,
   Divider,
-  message,
   Table,
   Select,
   InputNumber,
@@ -15,6 +14,7 @@ import {
 import { userBulkUpdateUserCall, teamBulkMemberAddCall, Member } from "./networking";
 import { UserEditView } from "./user_edit_view";
 import NotificationsManager from "./molecules/notifications_manager";
+import MessageManager from "@/components/molecules/message_manager";
 
 const { Text, Title } = Typography;
 
@@ -189,7 +189,7 @@ const BulkEditUserModal: React.FC<BulkEditUserModalProps> = ({
         }
 
         if (failedTeams.length > 0) {
-          message.warning(`Failed to add users to ${failedTeams.length} team(s)`);
+          MessageManager.warning(`Failed to add users to ${failedTeams.length} team(s)`);
         }
       }
 

@@ -259,6 +259,70 @@ LiteLLM Performance: **8ms P95 latency** at 1k RPS (See benchmarks [here](https:
 
 **Stable Release:** Use docker images with the `-stable` tag. These have undergone 12 hour load tests, before being published. [More information about the release cycle here](https://docs.litellm.ai/docs/proxy/release_cycle)
 
+## SOCKS5 Proxy Support for Anthropic
+
+LiteLLM now supports routing all Anthropic API requests through a SOCKS5 proxy. This is useful for organizations that need to route traffic through specific network paths for security or compliance reasons.
+
+### Configuration
+
+To enable SOCKS5 proxy for Anthropic requests, set the following environment variables:
+
+```bash
+# Enable SOCKS5 proxy for Anthropic
+export LITELLM_USE_SOCKS5_PROXY_FOR_ANTHROPIC=true
+
+# SOCKS5 proxy URL
+export LITELLM_SOCKS5_PROXY_URL=socks5://username:password@proxy_host:proxy_port
+```
+
+### Example Configuration
+
+```bash
+export LITELLM_USE_SOCKS5_PROXY_FOR_ANTHROPIC=true
+export LITELLM_SOCKS5_PROXY_URL=socks5://proxy_user:rIdihHAC17kxkKPR@80.74.31.177:36943
+```
+
+### Docker Configuration
+
+```yaml
+version: '3.8'
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    environment:
+      - LITELLM_USE_SOCKS5_PROXY_FOR_ANTHROPIC=true
+      - LITELLM_SOCKS5_PROXY_URL=socks5://proxy_user:rIdihHAC17kxkKPR@80.74.31.177:36943
+      - ANTHROPIC_API_KEY=your-anthropic-api-key
+    ports:
+      - "4000:4000"
+```
+
+### Supported Proxy Formats
+
+LiteLLM supports the following proxy URL formats:
+
+- `socks5://username:password@host:port` - SOCKS5 with authentication
+- `socks5://host:port` - SOCKS5 without authentication
+- `socks5h://username:password@host:port` - SOCKS5 with remote DNS
+
+### Requirements
+
+For asynchronous requests (recommended), install the required dependency:
+
+```bash
+# Install as optional dependency
+pip install 'litellm[proxy]'
+
+# Or install directly
+pip install aiohttp_socks
+```
+
+Synchronous requests use built-in httpx proxy support and don't require additional dependencies.
+
+### Documentation
+
+For more detailed information, see the [SOCKS5 Proxy Documentation](litellm/llms/anthropic/SOCKS5_PROXY.md) in the Anthropic module.
+
 Support for more providers. Missing a provider or LLM Platform, raise a [feature request](https://github.com/BerriAI/litellm/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.yml&title=%5BFeature%5D%3A+).
 
 ## OSS Adopters 

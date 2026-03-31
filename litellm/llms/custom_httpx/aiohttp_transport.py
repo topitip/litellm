@@ -299,6 +299,12 @@ class LiteLLMAiohttpTransport(AiohttpTransport):
         # Resolve proxy settings from environment variables
         proxy = await self._get_proxy_settings(request)
 
+        # Check if SOCKS5 proxy should be used for Anthropic
+        from litellm.llms.custom_httpx.http_handler import should_use_socks5_proxy_for_anthropic
+        socks5_proxy_url = os.getenv("LITELLM_SOCKS5_PROXY_URL")
+        if should_use_socks5_proxy_for_anthropic(str(request.url)) and socks5_proxy_url:
+            proxy = socks5_proxy_url
+
         # Use stored SSL configuration for per-request override
         ssl_config = self._ssl_verify
 

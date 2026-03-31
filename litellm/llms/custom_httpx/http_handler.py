@@ -932,20 +932,6 @@ class AsyncHTTPHandler:
             "ttl_dns_cache": AIOHTTP_TTL_DNS_CACHE,
             **connector_kwargs,
         }
-        
-        # Add SOCKS5 proxy support if needed
-        if use_socks5_proxy and socks5_proxy_url:
-            try:
-                from aiohttp_socks import ProxyConnector
-                transport_connector_kwargs["connector"] = ProxyConnector.from_url(socks5_proxy_url)
-                # Remove conflicting parameters when using ProxyConnector
-                transport_connector_kwargs.pop("local_addr", None)
-            except ImportError:
-                verbose_logger.warning(
-                    "aiohttp_socks not installed. SOCKS5 proxy will not be used. "
-                    "Please install it with: pip install aiohttp_socks"
-                )
-        
         if AIOHTTP_NEEDS_CLEANUP_CLOSED:
             transport_connector_kwargs["enable_cleanup_closed"] = True
         if AIOHTTP_CONNECTOR_LIMIT > 0:
@@ -955,17 +941,25 @@ class AsyncHTTPHandler:
                 "limit_per_host"
             ] = AIOHTTP_CONNECTOR_LIMIT_PER_HOST
 
-        # Create connector with or without SOCKS5 proxy
-        if "connector" in transport_connector_kwargs:
-            # Use the pre-created connector (SOCKS5 case)
-            connector = transport_connector_kwargs.pop("connector")
-        else:
-            # Create standard TCPConnector
-            connector = TCPConnector(**transport_connector_kwargs)
+        # Store proxy URL for deferred use inside lambda (connector needs running event loop)
+        _socks5_proxy_url = socks5_proxy_url if use_socks5_proxy else None
+
+        def _make_connector():
+            if _socks5_proxy_url:
+                try:
+                    from aiohttp_socks import ProxyConnector
+                    kwargs = {k: v for k, v in transport_connector_kwargs.items() if k != "local_addr"}
+                    return ProxyConnector.from_url(_socks5_proxy_url, **kwargs)
+                except ImportError:
+                    verbose_logger.warning(
+                        "aiohttp_socks not installed. SOCKS5 proxy will not be used. "
+                        "Please install it with: pip install aiohttp_socks"
+                    )
+            return TCPConnector(**transport_connector_kwargs)
 
         return LiteLLMAiohttpTransport(
             client=lambda: ClientSession(
-                connector=connector,
+                connector=_make_connector(),
                 trust_env=trust_env,
             ),
             ssl_verify=ssl_for_transport,
